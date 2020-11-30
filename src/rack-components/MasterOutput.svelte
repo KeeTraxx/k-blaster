@@ -1,6 +1,6 @@
 <script>
     import RackPort from "./RackPort.svelte";
-    import type { AudioPort } from "./types";
+    import type { AudioPort } from "../types";
     export let audioContext: AudioContext;
     export let front: boolean;
     export const inputs: Array<AudioPort<GainNode>> = [

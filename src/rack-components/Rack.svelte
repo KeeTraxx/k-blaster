@@ -1,5 +1,5 @@
 <script context="module">
-    import type { AudioPort } from "./types";
+import type { AudioPort } from "./types";
     let other: AudioPort<AudioNode> | null;
     export function start(ev: Event, port: AudioPort<AudioNode>) {
         console.log("start");
@@ -26,7 +26,6 @@
             // console.log("start", ev, port);
         }
     }
-
     export function end(ev: Event, toPort: AudioPort<AudioNode>) {
         console.log("end");
         ev.stopPropagation();
@@ -48,17 +47,16 @@
     }
 </script>
 
-<script>
+<script> 
     interface Device extends Svelte2TsxComponent {
         inputs: Array<AudioNode>;
         output: AudioNode;
         front: boolean;
     }
     import { onMount, SvelteComponentDev } from "svelte/internal";
-
     import Mixer from "./Mixer.svelte";
     import MasterOutput from "./MasterOutput.svelte";
-    import { svgPos } from "./Util";
+    import { svgPos } from "../Util";
     import Oscillator from "./Oscillator.svelte";
     export let audioContext: AudioContext;
     export let configuration: {
@@ -70,7 +68,6 @@
     let floatingCable:
         | [{ x: number; y: number }, { x: number; y: number }]
         | undefined;
-
     const deviceMap: Record<
         string,
         { component: typeof SvelteComponentDev; heightUnits: number }
@@ -79,35 +76,28 @@
         Mixer: { component: Mixer, heightUnits: 2 },
         Oscillator: { component: Oscillator, heightUnits: 1 },
     };
-
     const devices: Array<Device> = [];
-
     const layout = configuration.devices.reduce<Array<number>>(
         (layout, device) => {
             return layout.concat(layout[layout.length-1] + deviceMap[device.type].heightUnits * 100);
         },
         [0]
     );
-
     console.log(layout);
-
     onMount(() => {
         console.log(devices[1].output);
     });
-
     function keydown(ev: KeyboardEvent) {
         if (ev.key === "Tab") {
             front = !front;
             ev.preventDefault();
         }
     }
-
     function reset() {
         console.log("reset");
         other = null;
         floatingCable = undefined;
     }
-
     function mouseMove(ev: MouseEvent) {
         if (other?.element !== undefined && svg !== null) {
             const rect: DOMRect = other.element.getBoundingClientRect();

@@ -1,6 +1,6 @@
 <script lang="typescript">
   import "./TailwindCSS.svelte";
-  import Rack from "./Rack.svelte";
+  import Rack from "./rack-components/Rack.svelte";
   import configuration from "./defaultRack.json";
 
   let audioContext:AudioContext;
