@@ -1,5 +1,5 @@
 <script context="module">
-import type { AudioPort } from "./types";
+    import type { AudioPort } from "../types";
     let other: AudioPort<AudioNode> | null;
     export function start(ev: Event, port: AudioPort<AudioNode>) {
         console.log("start");
@@ -47,7 +47,7 @@ import type { AudioPort } from "./types";
     }
 </script>
 
-<script> 
+<script>
     interface Device extends Svelte2TsxComponent {
         inputs: Array<AudioNode>;
         output: AudioNode;
@@ -58,6 +58,8 @@ import type { AudioPort } from "./types";
     import MasterOutput from "./MasterOutput.svelte";
     import { svgPos } from "../Util";
     import Oscillator from "./Oscillator.svelte";
+    import Shaders from "./Shaders.svelte";
+import Cable from "./Cable.svelte";
     export let audioContext: AudioContext;
     export let configuration: {
         devices: Array<{ type: string }>;
@@ -79,7 +81,10 @@ import type { AudioPort } from "./types";
     const devices: Array<Device> = [];
     const layout = configuration.devices.reduce<Array<number>>(
         (layout, device) => {
-            return layout.concat(layout[layout.length-1] + deviceMap[device.type].heightUnits * 100);
+            return layout.concat(
+                layout[layout.length - 1] +
+                    deviceMap[device.type].heightUnits * 100
+            );
         },
         [0]
     );
@@ -115,9 +120,11 @@ import type { AudioPort } from "./types";
 </script>
 
 <style>
-    line {
-        stroke-width: 1px;
-        stroke: black;
+    .cables line {
+        stroke: red;
+        stroke-width: 5px;
+        filter: url(#cable);
+        stroke-linecap: round;
         pointer-events: none;
     }
 </style>
@@ -131,6 +138,7 @@ import type { AudioPort } from "./types";
     class="w-full h-full"
     viewBox="0 0 960 500"
     preserveAspectRatio="xMidYMin meet">
+    <Shaders />
     {#each configuration.devices as device, i}
         <g transform="translate(0, {layout[i]})">
             <svelte:component
@@ -140,11 +148,15 @@ import type { AudioPort } from "./types";
                 bind:this={devices[i]} />
         </g>
     {/each}
-    {#if floatingCable}
-        <line
-            x1={floatingCable[0].x}
-            y1={floatingCable[0].y}
-            x2={floatingCable[1].x}
-            y2={floatingCable[1].y} />
-    {/if}
+    <g class="cables">
+        <line x2="200" y2="200" />
+        {#if floatingCable}
+            <line
+                x1={floatingCable[0].x}
+                y1={floatingCable[0].y}
+                x2={floatingCable[1].x}
+                y2={floatingCable[1].y} />
+        {/if}
+        <Cable />
+    </g>
 </svg>
