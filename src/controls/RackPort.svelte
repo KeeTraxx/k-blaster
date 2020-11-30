@@ -1,5 +1,5 @@
 <script>
-    import { end, start } from "./Rack.svelte";
+    import { end, start } from "../rack-components/Rack.svelte";
     import type { AudioPort } from "../types";
     export let audioPort: AudioPort<AudioNode>;
     export let x:number = 0,y:number = 0;

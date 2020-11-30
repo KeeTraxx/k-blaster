@@ -1,7 +1,7 @@
 <script>
     import { range } from "d3";
     import type { AudioPort } from "../types";
-    import RackPort from "./RackPort.svelte";
+    import RackPort from "../controls/RackPort.svelte";
     export let audioContext: AudioContext;
     export let front: boolean;
     export const output: AudioPort<GainNode> = Object.assign(

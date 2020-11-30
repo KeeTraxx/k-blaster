@@ -1,5 +1,5 @@
 <script>
-    import RackPort from "./RackPort.svelte";
+    import RackPort from "../controls/RackPort.svelte";
     import type { AudioPort, MidiNote } from "../types";
     export let audioContext: AudioContext;
     export let front: boolean;
