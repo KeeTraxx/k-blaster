@@ -1,0 +1,14 @@
+{
+    "devices": [
+        {
+            "type": "MasterOutput"
+        },
+        {
+            "type": "Mixer"
+        },
+        {
+            "type": "Oscillator"
+        }
+    ],
+    "connections": []
+}
