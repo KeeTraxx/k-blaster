@@ -22,12 +22,12 @@
 
 {#if front}
     <g>
-        <rect width="960" height="200" fill="rgba(0,0,255,0.1)" />
+        <rect width="960" height="200" fill="#E2E2E2" rx="4" />
         <text x="20" y="20">Mixer</text>
     </g>
 {:else}
     <g>
-        <text x="20" y="20">Back</text>
+        <rect width="960" height="200" fill="#E2E2E2" />
         <g transform="translate(20,20)">
             <RackPort audioPort={output} />
         </g>

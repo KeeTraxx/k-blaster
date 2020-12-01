@@ -1,4 +1,4 @@
-export interface AudioPort<T extends AudioNode> extends T {
+export interface AudioPort<T extends AudioNode = AudioNode> extends T {
     element?: SVGGElement;
     isOutput: boolean;
     connection?: AudioPort

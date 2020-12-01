@@ -41,8 +41,8 @@
     <g>
         <rect
             width="960"
-            height="50"
-            fill="rgba(255,0,0,0.1)"
+            height="100"
+            fill="#bbb"
             on:mousedown={(e) => play({ channel: 1, pitch: 67, velocity: 127 })}
             on:mouseup={(e) => stop({
                     channel: 1,
@@ -53,6 +53,10 @@
     </g>
 {:else}
     <g>
+        <rect
+            width="960"
+            height="100"
+            fill="#bbb" />
         <g transform="translate(20,20)">
             <RackPort audioPort={output} />
         </g>

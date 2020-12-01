@@ -1,7 +1,10 @@
 <script context="module">
+    import { writable } from "svelte/store";
+    import { centerPos, svgPos } from "../Util";
     import type { AudioPort } from "../types";
     let other: AudioPort<AudioNode> | null;
-    export function start(ev: Event, port: AudioPort<AudioNode>) {
+    const cableStore: any = writable<Array<[AudioPort, AudioPort]>>([]);
+    export function start(ev: Event, port: AudioPort) {
         console.log("start");
         ev.stopPropagation();
         ev.preventDefault();
@@ -14,8 +17,22 @@
             }
             if (other.isOutput) {
                 other.disconnect(port);
+                cableStore.update((cableStore: Array<[AudioPort, AudioPort]>) => {
+                    const index = cableStore.findIndex(c => c[0] === other);
+                    if (index > -1) {
+                        cableStore.splice(index, 1);
+                    }
+                    return cableStore;
+                });
             } else {
                 port.disconnect(other);
+                cableStore.update((cableStore:Array<[AudioPort, AudioPort]>) => {
+                    const index = cableStore.findIndex(c => c[0] === port);
+                    if (index > -1) {
+                        cableStore.splice(index, 1);
+                    }
+                    return cableStore;
+                });
             }
             port.connection = undefined;
             other.connection = undefined;
@@ -42,6 +59,11 @@
             output.connection = input;
             input.connection = output;
             console.log("connecting!", output, input);
+            cableStore.update((cableStore) => {
+                console.log("update", output, input);
+                cableStore.push([output, input]);
+                return cableStore;
+            });
         }
         other = null;
     }
@@ -56,10 +78,9 @@
     import { onMount, SvelteComponentDev } from "svelte/internal";
     import Mixer from "./Mixer.svelte";
     import MasterOutput from "./MasterOutput.svelte";
-    import { svgPos } from "../Util";
     import Oscillator from "./Oscillator.svelte";
     import Shaders from "./Shaders.svelte";
-import Cable from "./Cable.svelte";
+    import Cable from "./Cable.svelte";
     export let audioContext: AudioContext;
     export let configuration: {
         devices: Array<{ type: string }>;
@@ -107,16 +128,28 @@ import Cable from "./Cable.svelte";
         if (other?.element !== undefined && svg !== null) {
             const rect: DOMRect = other.element.getBoundingClientRect();
             floatingCable = [
-                svgPos(
-                    { x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 },
-                    svg
-                ),
+                centerPos(rect, svg),
                 svgPos({ x: ev.clientX, y: ev.clientY }, svg),
             ];
         } else {
             floatingCable = undefined;
         }
     }
+
+    let cables: Array<{
+        from: { x: number; y: number };
+        to: { x: number; y: number };
+    }> = [];
+
+    cableStore.subscribe(() => {
+        const connectedPorts: Array<[AudioPort, AudioPort]> = [
+            ...$cableStore.values(),
+        ];
+        cables = connectedPorts.map(([from, to]) => ({
+            from: centerPos(from.element.getBoundingClientRect(), svg),
+            to: centerPos(to.element.getBoundingClientRect(), svg),
+        }));
+    });
 </script>
 
 <style>
@@ -127,13 +160,15 @@ import Cable from "./Cable.svelte";
         stroke-linecap: round;
         pointer-events: none;
     }
+    svg {
+        background-color: #333;
+    }
 </style>
 
-<svelte:body
-    on:keydown={keydown}
-    on:mouseup={(e) => reset()}
-    on:mousemove={mouseMove} />
+<svelte:body on:keydown={keydown} />
 <svg
+    on:mouseup={(e) => reset()}
+    on:mousemove={mouseMove}
     bind:this={svg}
     class="w-full h-full"
     viewBox="0 0 960 500"
@@ -148,15 +183,22 @@ import Cable from "./Cable.svelte";
                 bind:this={devices[i]} />
         </g>
     {/each}
-    <g class="cables">
-        <line x2="200" y2="200" />
-        {#if floatingCable}
-            <line
-                x1={floatingCable[0].x}
-                y1={floatingCable[0].y}
-                x2={floatingCable[1].x}
-                y2={floatingCable[1].y} />
-        {/if}
-        <Cable />
-    </g>
+    {#if !front}
+        <g class="cables">
+            {#each cables as cable}
+                <Cable
+                    x1={cable.from.x}
+                    y1={cable.from.y}
+                    x2={cable.to.x}
+                    y2={cable.to.y} />
+            {/each}
+            {#if floatingCable && other}
+                <Cable
+                    x1={floatingCable[0].x}
+                    y1={floatingCable[0].y}
+                    x2={floatingCable[1].x}
+                    y2={floatingCable[1].y} />
+            {/if}
+        </g>
+    {/if}
 </svg>

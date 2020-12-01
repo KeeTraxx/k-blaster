@@ -1,3 +1,5 @@
+import { svg } from "d3";
+
 export function svgPos({ x, y }: { x: number, y: number }, svg: SVGSVGElement): {x:number, y:number} {
     var offset = svg.getBoundingClientRect();
   
@@ -10,4 +12,11 @@ export function svgPos({ x, y }: { x: number, y: number }, svg: SVGSVGElement): 
     } else {
         return {x: 0, y:0}
     }
+}
+
+export function centerPos(rect:DOMRect, svg:SVGSVGElement) {
+    return svgPos(
+        { x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 },
+        svg
+    )
 }
