@@ -34,7 +34,7 @@
   cableNodes[cableNodes.length - 1].fy = y2;
 
   const sim = forceSimulation(cableNodes)
-    .force("gravity", forceY(2000).strength(0.01))
+    .force("gravity", forceY(2000).strength(0.005))
     .force(
       "link",
       forceLink()
@@ -42,7 +42,7 @@
           pairs(cableNodes).map(([source, target]) => ({ source, target }))
         )
         .distance(distance() / cableParts)
-        .strength(0.8)
+        .strength(0.9)
     )
     .force("collide", forceCollide(20));
   let pathElement: SVGPathElement;

@@ -1,5 +1,5 @@
 <script>
-import { onMount } from "svelte";
+    import { onMount } from "svelte";
 
     import RackPort from "../controls/RackPort.svelte";
     import type { AudioPort } from "../types";
@@ -8,24 +8,64 @@ import { onMount } from "svelte";
     export const inputs: Array<AudioPort<GainNode>> = [
         Object.assign(audioContext.createGain(), { isOutput: false }),
     ];
-    inputs[0].connect(audioContext.destination);
+    let outputDevices: Array<MediaDeviceInfo> = [];
+    let selectedDeviceIndex: number = 0;
+    const audio = new Audio();
+
     onMount(async () => {
+        await navigator.mediaDevices.getUserMedia({ audio: {} });
         const devs = await navigator.mediaDevices.enumerateDevices();
-        console.log(devs);
+        outputDevices = devs.filter((d) => d.kind === "audiooutput");
+        selectedDeviceIndex = outputDevices.findIndex(
+            (d) => d.deviceId === "default"
+        );
+        const node = audioContext.createMediaStreamDestination();
+        inputs[0].connect(node);
+
+        audio.srcObject = node.stream;
+        audio.play();
+
+        console.log(audio);
     });
-    
+
+    $: {
+        console.log("selectedDevice", selectedDeviceIndex);
+        // @ts-ignore
+        audio.setSinkId(outputDevices[selectedDeviceIndex]?.deviceId);
+    }
+
+    function next() {
+        console.log('next', selectedDeviceIndex);
+        selectedDeviceIndex = (selectedDeviceIndex + 1) % outputDevices.length;
+
+    }
 </script>
+<style>
+    text {
+        pointer-events: none;
+        user-select: none;
+    }
+</style>
 
 {#if front}
-    <g>
-        <rect width="960" height="50" fill="#eee" rx={3} />
+    <g on:click={() => next()} >
+        <rect
+            width="960"
+            height="50"
+            fill="#eee"
+            rx={3}
+            />
+        <rect x="15" y="5" width=500 height=20 fill="#020"></rect>
+        <rect x="525" y="5" width=150 height=20 fill="#f44" stroke="#fff"></rect>
+        <text x="530" y="20" width=500 height=20 fill="#fff">Next audio device</text>
+        <text x="20" y="20" fill="#080">{outputDevices[selectedDeviceIndex]?.label}</text>
         <text x="900" y="40" fill="white">MasterOut</text>
     </g>
 {:else}
     <g>
         <rect width="960" height="50" fill="#eee" />
-        <g transform="translate(20,20)">
-            <RackPort audioPort={inputs[0]} />
+        <g transform="translate(100,20)">
+            <RackPort label="Input" audioPort={inputs[0]} />
         </g>
     </g>
 {/if}

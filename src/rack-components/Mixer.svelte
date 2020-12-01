@@ -28,12 +28,12 @@
 {:else}
     <g>
         <rect width="960" height="200" fill="#E2E2E2" />
-        <g transform="translate(20,20)">
-            <RackPort audioPort={output} />
+        <g transform="translate(40,20)">
+            <RackPort audioPort={output} label="Mixer Out" />
         </g>
-        <g transform="translate(20,50)">
+        <g transform="translate(40,50)">
             {#each inputs as input, i}
-                <RackPort x={i * 30} audioPort={input} />
+                <RackPort label="{i+''}" x={i * 30} audioPort={input} />
             {/each}
         </g>
     </g>

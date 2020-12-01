@@ -3,14 +3,22 @@
   import Rack from "./rack-components/Rack.svelte";
   import configuration from "./defaultRack.json";
 
-  let audioContext:AudioContext;
+  let audioContext: AudioContext;
+  function init(e:Event) {
+    if (!audioContext) {
+      audioContext = new AudioContext();
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  }
 </script>
 
-<style>
-</style>
+<svelte:window on:keydown={(e) => init(e)} />
 
 {#if audioContext}
   <Rack {audioContext} {configuration} />
 {:else}
-<div on:click={e => audioContext = new AudioContext()}>no audiocontext</div>
+  <div on:click={(e) => init(e)}>
+    no audiocontext
+  </div>
 {/if}
