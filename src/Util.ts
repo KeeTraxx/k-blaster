@@ -1,17 +1,16 @@
-import { svg } from "d3";
-
-export function svgPos({ x, y }: { x: number, y: number }, svg: SVGSVGElement): {x:number, y:number} {
-    var offset = svg.getBoundingClientRect();
+export function svgPos({ x, y }: { x: number, y: number }, svg: SVGGraphicsElement): {x:number, y:number} {
+    const offset = svg.getBoundingClientRect();
   
-    var matrix = svg.getScreenCTM()?.inverse();
-    if (matrix != null) {
+    const matrix = svg.getScreenCTM()?.inverse();
+
+    if (matrix) {
         return {
             x: (matrix.a * x) + (matrix.c * y) + matrix.e - offset.left,
             y: (matrix.b * x) + (matrix.d * y) + matrix.f - offset.top
           };
     } else {
         return {x: 0, y:0}
-    }
+    }    
 }
 
 export function centerPos(rect:DOMRect, svg:SVGSVGElement) {
@@ -19,4 +18,8 @@ export function centerPos(rect:DOMRect, svg:SVGSVGElement) {
         { x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 },
         svg
     )
+}
+
+export function svgScale(svg:SVGGraphicsElement) :number | undefined{
+    return svg.getScreenCTM()?.inverse().a;
 }

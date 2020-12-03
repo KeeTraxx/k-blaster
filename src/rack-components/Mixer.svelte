@@ -2,7 +2,7 @@
     import { range } from "d3";
     import type { AudioPort } from "../types";
     import RackPort from "../controls/RackPort.svelte";
-import VerticalSlider from "../controls/VerticalSlider.svelte";
+    import GainControl from "../controls/GainControl.svelte";
     export let audioContext: AudioContext;
     export let front: boolean;
     export const output: AudioPort<GainNode> = Object.assign(
@@ -25,7 +25,7 @@ import VerticalSlider from "../controls/VerticalSlider.svelte";
     <g>
         <rect width="960" height="200" fill="#E2E2E2" rx="4" />
         <text x="20" y="20">Mixer</text>
-        <VerticalSlider />
+        <GainControl x={30} y={50} gainNode={output} {audioContext} />
     </g>
 {:else}
     <g>
@@ -35,7 +35,7 @@ import VerticalSlider from "../controls/VerticalSlider.svelte";
         </g>
         <g transform="translate(40,50)">
             {#each inputs as input, i}
-                <RackPort label="{i+''}" x={i * 30} audioPort={input} />
+                <RackPort label={i + ''} x={i * 30} audioPort={input} />
             {/each}
         </g>
     </g>

@@ -20,6 +20,7 @@
             osc: audioContext.createOscillator(),
             gain: audioContext.createGain(),
         });
+        oscDevice.gain.gain.value = 0.5;
         // https://en.wikipedia.org/wiki/MIDI_tuning_standard
         oscDevice.osc.frequency.value =
             Math.pow(2, (note.pitch - 69) / 12) * 440;

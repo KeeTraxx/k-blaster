@@ -4,6 +4,7 @@
   @import "tailwindcss/utilities";
   body {
     font-family: 'VT323', Roboto, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    user-select: none;
   }
 
   canvas {
