@@ -4,10 +4,9 @@
     import type { AudioPort } from "../types";
     let other: AudioPort<AudioNode> | null;
     const cableStore: any = writable<Array<[AudioPort, AudioPort]>>([]);
-    export function start(ev: Event, port: AudioPort) {
+
+    export function start(port: AudioPort) {
         console.log("start");
-        ev.stopPropagation();
-        ev.preventDefault();
         // check connections
         if (port.connection) {
             console.log("disconnect!!");
@@ -17,22 +16,30 @@
             }
             if (other.isOutput) {
                 other.disconnect(port);
-                cableStore.update((cableStore: Array<[AudioPort, AudioPort]>) => {
-                    const index = cableStore.findIndex(c => c[0] === other);
-                    if (index > -1) {
-                        cableStore.splice(index, 1);
+                cableStore.update(
+                    (cableStore: Array<[AudioPort, AudioPort]>) => {
+                        const index = cableStore.findIndex(
+                            (c) => c[0] === other
+                        );
+                        if (index > -1) {
+                            cableStore.splice(index, 1);
+                        }
+                        return cableStore;
                     }
-                    return cableStore;
-                });
+                );
             } else {
                 port.disconnect(other);
-                cableStore.update((cableStore:Array<[AudioPort, AudioPort]>) => {
-                    const index = cableStore.findIndex(c => c[0] === port);
-                    if (index > -1) {
-                        cableStore.splice(index, 1);
+                cableStore.update(
+                    (cableStore: Array<[AudioPort, AudioPort]>) => {
+                        const index = cableStore.findIndex(
+                            (c) => c[0] === port
+                        );
+                        if (index > -1) {
+                            cableStore.splice(index, 1);
+                        }
+                        return cableStore;
                     }
-                    return cableStore;
-                });
+                );
             }
             port.connection = undefined;
             other.connection = undefined;
@@ -43,10 +50,8 @@
             // console.log("start", ev, port);
         }
     }
-    export function end(ev: Event, toPort: AudioPort<AudioNode>) {
-        console.log("end");
-        ev.stopPropagation();
-        ev.preventDefault();
+    export function end(toPort: AudioPort<AudioNode> | undefined) {
+        console.log("end", toPort);
         // console.log("end", ev, port);
         if (
             other != null &&
@@ -66,6 +71,7 @@
             });
         }
         other = null;
+        cableStore.update((cableStore) => cableStore);
     }
 </script>
 
@@ -124,12 +130,33 @@
         other = null;
         floatingCable = undefined;
     }
+
     function mouseMove(ev: MouseEvent) {
         if (other?.element !== undefined && svg !== null) {
+            floatCable(ev.clientX, ev.clientY);
+        } else {
+            floatingCable = undefined;
+        }
+    }
+
+    function touchMove(ev: TouchEvent) {
+        if (
+            other?.element !== undefined &&
+            svg !== null &&
+            ev.touches.length === 1
+        ) {
+            floatCable(ev.touches[0].clientX, ev.touches[0].clientY);
+        } else {
+            floatingCable = undefined;
+        }
+    }
+
+    function floatCable(clientX: number, clientY: number) {
+        if (other?.element !== undefined) {
             const rect: DOMRect = other.element.getBoundingClientRect();
             floatingCable = [
                 centerPos(rect, svg),
-                svgPos({ x: ev.clientX, y: ev.clientY }, svg),
+                svgPos({ x: clientX, y: clientY }, svg),
             ];
         } else {
             floatingCable = undefined;
@@ -149,6 +176,7 @@
             from: centerPos(from.element.getBoundingClientRect(), svg),
             to: centerPos(to.element.getBoundingClientRect(), svg),
         }));
+        reset();
     });
 </script>
 
@@ -169,6 +197,8 @@
 <svg
     on:mouseup={(e) => reset()}
     on:mousemove={mouseMove}
+    on:touchmove={touchMove}
+    on:touchend={(e) => reset()}
     bind:this={svg}
     class="w-full h-full"
     viewBox="0 0 960 500"

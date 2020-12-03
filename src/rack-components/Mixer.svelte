@@ -18,6 +18,8 @@
         })
     );
 
+    console.log('input created!');
+
     inputs.forEach((i) => i.connect(output));
 </script>
 

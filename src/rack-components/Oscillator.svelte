@@ -33,7 +33,10 @@
     function stop(note: MidiNote) {
         console.log("stop", note);
         const osc = oscillators[note.pitch];
-        osc?.gain.gain.linearRampToValueAtTime(0, audioContext.currentTime + 0.1);
+        osc?.gain.gain.linearRampToValueAtTime(
+            0,
+            audioContext.currentTime + 0.1
+        );
         oscillators[note.pitch] = undefined;
     }
 </script>
@@ -44,6 +47,16 @@
             width="960"
             height="100"
             fill="#bbb"
+            on:touchstart|stopPropagation|preventDefault={(e) => play({
+                    channel: 1,
+                    pitch: 67,
+                    velocity: 127,
+                })}
+            on:touchend|stopPropagation|preventDefault={(e) => stop({
+                    channel: 1,
+                    pitch: 67,
+                    velocity: 127,
+                })}
             on:mousedown={(e) => play({ channel: 1, pitch: 67, velocity: 127 })}
             on:mouseup={(e) => stop({
                     channel: 1,
@@ -54,10 +67,7 @@
     </g>
 {:else}
     <g>
-        <rect
-            width="960"
-            height="100"
-            fill="#bbb" />
+        <rect width="960" height="100" fill="#bbb" />
         <g transform="translate(20,20)">
             <RackPort audioPort={output} />
         </g>

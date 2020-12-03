@@ -35,11 +35,35 @@
         const s = svgScale(rootEl);
         add((-e.movementY * (s || 1)) / height);
     }
+
+    let lastTouchEvent: Touch;
+
+    function touchStart(e:TouchEvent) {
+        if (e.touches.length === 1) {
+            lastTouchEvent = e.touches[0];
+            dragging = true;
+        }
+    }
+
+    function touchmove(e: TouchEvent) {
+        if (dragging && lastTouchEvent && e.touches.length === 1) {
+            const currentTouchEvent = e.touches[0];
+            const delta = currentTouchEvent.clientY - lastTouchEvent.clientY;
+            const s = svgScale(rootEl);
+            const scaledDelta = -delta * (s || 1) / height;
+            add(scaledDelta);
+            lastTouchEvent = e.touches[0];
+        }
+    }
 </script>
 
 <svelte:window
     on:mouseup={(e) => (dragging = false)}
-    on:mousemove={(e) => dragging && mousemove(e)} />
+    on:mousemove={(e) => dragging && mousemove(e)}
+    on:touchstart={(e) => touchStart(e)}
+    on:touchmove={(e) => touchmove(e)}
+    on:touchend={(e) => dragging = false}
+    />
 <g transform="translate({x},{y})">
     <g
         transform="translate(-6, -16)"
@@ -48,6 +72,7 @@
         <rect width="16" x="-2" y="16" {height} fill="pink" />
         <rect
             on:mousedown={(e) => (dragging = true)}
+            on:touchstart={(e) => (dragging = true)}
             transform="translate(0,{scale(value)})"
             width="12"
             height="32"
