@@ -4,14 +4,21 @@
   import VerticalSlider from "./VerticalSlider.svelte";
   export let x: number = 0;
   export let y: number = 0;
+  export let height: number = 100;
+  export let label: string = "";
   export let gainNode: GainNode;
-  export let audioContext:AudioContext;
+  export let audioContext: AudioContext;
 </script>
 
 <style>
+  text {
+    text-anchor: middle;
+    font-family: Teko;
+  }
 </style>
 
 <g transform="translate({x},{y})">
-  <GainAnalyzer {gainNode} {audioContext} />
-  <VerticalSlider x={30} y={16} bind:value={gainNode.gain.value} />
+  <text x="16" y={12}>{label}</text>
+  <GainAnalyzer y={16} height={height-16} {gainNode} {audioContext} />
+  <VerticalSlider x={20} y={14} height={height-16} bind:value={gainNode.gain.value} />
 </g>

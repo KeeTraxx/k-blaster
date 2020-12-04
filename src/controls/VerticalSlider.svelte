@@ -2,9 +2,10 @@
     import { scaleLinear } from "d3";
     import { svgScale } from "../Util";
 
-    export let x:number = 0;
-    export let y:number = 0;
+    export let x: number = 0;
+    export let y: number = 0;
     export let height: number = 100;
+    const sliderWindow = height - 36;
     export let min: number = 0;
     export let max: number = 1;
     export let step: number = (max - min) / 10;
@@ -12,12 +13,11 @@
 
     let dragging = false;
 
-    const scale = scaleLinear().domain([min, max]).range([height, 0]);
+    const scale = scaleLinear().domain([min, max]).range([sliderWindow, 0]);
 
     let rootEl: SVGGraphicsElement;
 
     function handleWheel(ev: WheelEvent) {
-        console.log(ev);
         if (ev.deltaY < 0) {
             add(step);
         }
@@ -33,12 +33,12 @@
 
     function mousemove(e: MouseEvent) {
         const s = svgScale(rootEl);
-        add((-e.movementY * (s || 1)) / height);
+        add((-e.movementY * (s || 1)) / sliderWindow);
     }
 
     let lastTouchEvent: Touch;
 
-    function touchStart(e:TouchEvent) {
+    function touchStart(e: TouchEvent) {
         if (e.touches.length === 1) {
             lastTouchEvent = e.touches[0];
             dragging = true;
@@ -50,26 +50,34 @@
             const currentTouchEvent = e.touches[0];
             const delta = currentTouchEvent.clientY - lastTouchEvent.clientY;
             const s = svgScale(rootEl);
-            const scaledDelta = -delta * (s || 1) / height;
+            const scaledDelta = (-delta * (s || 1)) / sliderWindow;
             add(scaledDelta);
             lastTouchEvent = e.touches[0];
         }
     }
 </script>
 
+<style>
+    line {
+        stroke: black;
+        stroke-width: 3px;
+        stroke-linecap: round;
+    }
+</style>
+
 <svelte:window
     on:mouseup={(e) => (dragging = false)}
     on:mousemove={(e) => dragging && mousemove(e)}
     on:touchstart={(e) => touchStart(e)}
     on:touchmove={(e) => touchmove(e)}
-    on:touchend={(e) => dragging = false}
-    />
+    on:touchend={(e) => (dragging = false)} />
 <g transform="translate({x},{y})">
     <g
-        transform="translate(-6, -16)"
+        transform="translate(2,2)"
         on:mousewheel={(e) => handleWheel(e)}
         bind:this={rootEl}>
-        <rect width="16" x="-2" y="16" {height} fill="pink" />
+        <rect width="15" height={height} fill="rgba(0,0,0,0)" />
+        <line x1="6" y1="16" x2="6" y2={height-20} />
         <rect
             on:mousedown={(e) => (dragging = true)}
             on:touchstart={(e) => (dragging = true)}

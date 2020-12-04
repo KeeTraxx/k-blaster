@@ -11,38 +11,42 @@
         if (port.connection) {
             console.log("disconnect!!");
             other = port.connection;
-            if (other === null) {
+            if (!other) {
                 return;
             }
             if (other.isOutput) {
-                other.disconnect(port);
+                other.disconnect();
                 cableStore.update(
                     (cableStore: Array<[AudioPort, AudioPort]>) => {
                         const index = cableStore.findIndex(
                             (c) => c[0] === other
                         );
                         if (index > -1) {
+                            console.log('remove cable', index);
                             cableStore.splice(index, 1);
                         }
                         return cableStore;
                     }
                 );
             } else {
-                port.disconnect(other);
+                port.disconnect();
                 cableStore.update(
                     (cableStore: Array<[AudioPort, AudioPort]>) => {
                         const index = cableStore.findIndex(
                             (c) => c[0] === port
                         );
+                        console.log(index);
                         if (index > -1) {
+                            console.log('remove cable', index);
                             cableStore.splice(index, 1);
                         }
                         return cableStore;
                     }
                 );
             }
-            port.connection = undefined;
-            other.connection = undefined;
+            if (port?.connection) port.connection = undefined;
+            if (other?.connection) other.connection = undefined;
+            console.log(other);
         } else {
             // no connections
             other = port;
@@ -176,7 +180,7 @@
             from: centerPos(from.element.getBoundingClientRect(), svg),
             to: centerPos(to.element.getBoundingClientRect(), svg),
         }));
-        reset();
+        //  reset();
     });
 </script>
 

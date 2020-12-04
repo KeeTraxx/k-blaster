@@ -13,7 +13,6 @@
     export let label: string = "";
 
     function touchEnd(ev: TouchEvent) {
-        console.log("touchend", ev);
         if (ev.changedTouches.length === 1) {
             const endElement = document.elementFromPoint(
                 ev.changedTouches[0].clientX,
