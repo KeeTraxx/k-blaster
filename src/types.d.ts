@@ -9,3 +9,10 @@ export interface MidiNote {
     velocity: number;
     channel: number;
 }
+
+export interface Port {
+    element: SVGElement;
+    type: string;
+    isOutput: boolean;
+    target: any;
+}

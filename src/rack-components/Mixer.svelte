@@ -3,6 +3,7 @@
     import type { AudioPort } from "../types";
     import RackPort from "../controls/RackPort.svelte";
     import GainControl from "../controls/GainControl.svelte";
+    import Port from "../controls/Port.svelte";
     export let audioContext: AudioContext;
     export let front: boolean;
     export const output: AudioPort<GainNode> = Object.assign(
@@ -37,5 +38,6 @@
                 <RackPort label="Input {i}" x={i * 50} audioPort={input} />
             {/each}
         </g>
+        <Port x={500} y={20} target={output} label="generic" />
     </g>
 {/if}
