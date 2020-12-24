@@ -1,7 +1,4 @@
 <script>
-    import { onMount } from "svelte";
-
-    import RackPort from "../controls/RackPort.svelte";
     export let front: boolean;
    
 </script>

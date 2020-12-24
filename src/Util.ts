@@ -13,7 +13,7 @@ export function svgPos({ x, y }: { x: number, y: number }, svg: SVGGraphicsEleme
     }    
 }
 
-export function centerPos(rect:DOMRect, svg:SVGSVGElement) {
+export function centerPos(rect:DOMRect, svg:SVGGraphicsElement) {
     return svgPos(
         { x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 },
         svg

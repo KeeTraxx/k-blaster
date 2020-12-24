@@ -1,7 +1,6 @@
 <script>
     import { range } from "d3";
     import type { AudioPort } from "../types";
-    import RackPort from "../controls/RackPort.svelte";
     import GainControl from "../controls/GainControl.svelte";
     import Port from "../controls/Port.svelte";
     export let audioContext: AudioContext;
@@ -31,13 +30,12 @@
     <g>
         <rect width="960" height="200" fill="#E2E2E2" />
         <g transform="translate(40,20)">
-            <RackPort audioPort={output} label="Mixer Out" />
+            <Port node={output} isOutput={true} label="Mixer Out" type="audio" />
         </g>
         <g transform="translate(40,100)">
             {#each inputs as input, i}
-                <RackPort label="Input {i}" x={i * 50} audioPort={input} />
+                <Port label="Input {i+1}" x={i * 50} node={input} type="audio" isOutput={false} />
             {/each}
         </g>
-        <Port x={500} y={20} target={output} label="generic" />
     </g>
 {/if}

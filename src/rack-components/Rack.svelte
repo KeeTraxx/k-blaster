@@ -1,85 +1,8 @@
-<script context="module">
-    import { writable } from "svelte/store";
-    import { centerPos, svgPos } from "../Util";
-    import type { AudioPort } from "../types";
-    let other: AudioPort<AudioNode> | null;
-    const cableStore: any = writable<Array<[AudioPort, AudioPort]>>([]);
-
-    export function start(port: AudioPort) {
-        console.log("start");
-        // check connections
-        if (port.connection) {
-            console.log("disconnect!!");
-            other = port.connection;
-            if (!other) {
-                return;
-            }
-            if (other.isOutput) {
-                other.disconnect();
-                cableStore.update(
-                    (cableStore: Array<[AudioPort, AudioPort]>) => {
-                        const index = cableStore.findIndex(
-                            (c) => c[0] === other
-                        );
-                        if (index > -1) {
-                            console.log('remove cable', index);
-                            cableStore.splice(index, 1);
-                        }
-                        return cableStore;
-                    }
-                );
-            } else {
-                port.disconnect();
-                cableStore.update(
-                    (cableStore: Array<[AudioPort, AudioPort]>) => {
-                        const index = cableStore.findIndex(
-                            (c) => c[0] === port
-                        );
-                        console.log(index);
-                        if (index > -1) {
-                            console.log('remove cable', index);
-                            cableStore.splice(index, 1);
-                        }
-                        return cableStore;
-                    }
-                );
-            }
-            if (port?.connection) port.connection = undefined;
-            if (other?.connection) other.connection = undefined;
-            console.log(other);
-        } else {
-            // no connections
-            other = port;
-            console.log("real start!");
-            // console.log("start", ev, port);
-        }
-    }
-    export function end(toPort: AudioPort<AudioNode> | undefined) {
-        console.log("end", toPort);
-        // console.log("end", ev, port);
-        if (
-            other != null &&
-            toPort != null &&
-            other.isOutput !== toPort.isOutput
-        ) {
-            const output = other.isOutput ? other : toPort;
-            const input = !other.isOutput ? other : toPort;
-            output.connect(input);
-            output.connection = input;
-            input.connection = output;
-            console.log("connecting!", output, input);
-            cableStore.update((cableStore) => {
-                console.log("update", output, input);
-                cableStore.push([output, input]);
-                return cableStore;
-            });
-        }
-        other = null;
-        cableStore.update((cableStore) => cableStore);
-    }
-</script>
-
 <script>
+    import { centerPos, svgPos } from "../Util";
+
+    import { cables, startPort, svgStore } from "../store/CableStore";
+
     interface Device extends Svelte2TsxComponent {
         inputs: Array<AudioNode>;
         output: AudioNode;
@@ -97,10 +20,7 @@
         connections: Array<any>;
     };
     export let front: boolean = true;
-    let svg: SVGSVGElement;
-    let floatingCable:
-        | [{ x: number; y: number }, { x: number; y: number }]
-        | undefined;
+
     const deviceMap: Record<
         string,
         { component: typeof SvelteComponentDev; heightUnits: number }
@@ -119,7 +39,6 @@
         },
         [0]
     );
-    console.log(layout);
     onMount(() => {
         console.log(devices[1].output);
     });
@@ -129,59 +48,60 @@
             ev.preventDefault();
         }
     }
-    function reset() {
-        console.log("reset");
-        other = null;
-        floatingCable = undefined;
-    }
+    let tempCable:
+        | { x1: number; y1: number; x2: number; y2: number }
+        | undefined;
 
-    function mouseMove(ev: MouseEvent) {
-        if (other?.element !== undefined && svg !== null) {
-            floatCable(ev.clientX, ev.clientY);
-        } else {
-            floatingCable = undefined;
+    let mouseMoveListener = (ev: MouseEvent) => {
+        if (tempCable) {
+            const { x, y } = svgPos(
+                {
+                    x: ev.clientX,
+                    y: ev.clientY,
+                },
+                $svgStore
+            );
+            tempCable.x2 = x;
+            tempCable.y2 = y;
         }
-    }
+    };
 
-    function touchMove(ev: TouchEvent) {
-        if (
-            other?.element !== undefined &&
-            svg !== null &&
-            ev.touches.length === 1
-        ) {
-            floatCable(ev.touches[0].clientX, ev.touches[0].clientY);
-        } else {
-            floatingCable = undefined;
+    let touchMoveListener = (ev: TouchEvent) => {
+        if (tempCable && ev.changedTouches.length === 1) {
+            const touch = ev.changedTouches[0];
+            const { x, y } = svgPos(
+                {
+                    x: touch.clientX,
+                    y: touch.clientY,
+                },
+                $svgStore
+            );
+            tempCable.x2 = x;
+            tempCable.y2 = y;
         }
-    }
+    };
 
-    function floatCable(clientX: number, clientY: number) {
-        if (other?.element !== undefined) {
-            const rect: DOMRect = other.element.getBoundingClientRect();
-            floatingCable = [
-                centerPos(rect, svg),
-                svgPos({ x: clientX, y: clientY }, svg),
-            ];
+    startPort.subscribe((port) => {
+        if (port !== undefined && port.element) {
+            const { x, y } = centerPos(
+                port.element.getBoundingClientRect(),
+                $svgStore
+            );
+            tempCable = {
+                x1: x,
+                y1: y,
+                x2: x,
+                y2: y,
+            };
+            window.addEventListener("mousemove", mouseMoveListener);
+            window.addEventListener("touchmove", touchMoveListener);
         } else {
-            floatingCable = undefined;
+            window.removeEventListener("mousemove", mouseMoveListener);
+            window.removeEventListener("touchmove", touchMoveListener);
+            tempCable = undefined;
         }
-    }
-
-    let cables: Array<{
-        from: { x: number; y: number };
-        to: { x: number; y: number };
-    }> = [];
-
-    cableStore.subscribe(() => {
-        const connectedPorts: Array<[AudioPort, AudioPort]> = [
-            ...$cableStore.values(),
-        ];
-        cables = connectedPorts.map(([from, to]) => ({
-            from: centerPos(from.element.getBoundingClientRect(), svg),
-            to: centerPos(to.element.getBoundingClientRect(), svg),
-        }));
-        //  reset();
     });
+
 </script>
 
 <style>
@@ -199,11 +119,7 @@
 
 <svelte:body on:keydown={keydown} />
 <svg
-    on:mouseup={(e) => reset()}
-    on:mousemove={mouseMove}
-    on:touchmove={touchMove}
-    on:touchend={(e) => reset()}
-    bind:this={svg}
+    bind:this={$svgStore}
     class="w-full h-full"
     viewBox="0 0 960 500"
     preserveAspectRatio="xMidYMin meet">
@@ -219,19 +135,14 @@
     {/each}
     {#if !front}
         <g class="cables">
-            {#each cables as cable}
-                <Cable
-                    x1={cable.from.x}
-                    y1={cable.from.y}
-                    x2={cable.to.x}
-                    y2={cable.to.y} />
-            {/each}
-            {#if floatingCable && other}
-                <Cable
-                    x1={floatingCable[0].x}
-                    y1={floatingCable[0].y}
-                    x2={floatingCable[1].x}
-                    y2={floatingCable[1].y} />
+            {#if $cables}
+                <text x="40" y="40">{$cables}</text>
+                {#each $cables as cable}
+                    <Cable {...cable} />
+                {/each}
+            {/if}
+            {#if tempCable}
+                <Cable {...tempCable} />
             {/if}
         </g>
     {/if}

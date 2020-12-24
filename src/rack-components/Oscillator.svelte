@@ -1,5 +1,6 @@
 <script>
-    import RackPort from "../controls/RackPort.svelte";
+import Port from "../controls/Port.svelte";
+
     import type { AudioPort, MidiNote } from "../types";
     export let audioContext: AudioContext;
     export let front: boolean;
@@ -69,7 +70,7 @@
     <g>
         <rect width="960" height="100" fill="#bbb" />
         <g transform="translate(20,20)">
-            <RackPort audioPort={output} />
+            <Port node={output} isOutput={true} type="audio" label="Audio out" />
         </g>
     </g>
 {/if}

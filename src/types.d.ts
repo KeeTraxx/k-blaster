@@ -11,8 +11,9 @@ export interface MidiNote {
 }
 
 export interface Port {
-    element: SVGElement;
+    element?: SVGGraphicsElement;
     type: string;
     isOutput: boolean;
-    target: any;
+    node: any;
+    connectedTo?: Port;
 }

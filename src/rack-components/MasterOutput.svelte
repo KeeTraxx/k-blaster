@@ -1,7 +1,7 @@
 <script>
+    import Port from "../controls/Port.svelte";
     import { onMount } from "svelte";
 
-    import RackPort from "../controls/RackPort.svelte";
     import type { AudioPort } from "../types";
     export let audioContext: AudioContext;
     export let front: boolean;
@@ -65,7 +65,7 @@
     <g>
         <rect width="960" height="50" fill="#eee" />
         <g transform="translate(100,20)">
-            <RackPort label="Input" audioPort={inputs[0]} />
+            <Port x={50} node={inputs[0]} isOutput={false} label="Input" type="audio" />
         </g>
     </g>
 {/if}

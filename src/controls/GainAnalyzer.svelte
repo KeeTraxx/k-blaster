@@ -14,7 +14,7 @@
 
   const analyserNode: AnalyserNode = audioContext.createAnalyser();
   analyserNode.maxDecibels = -10;
-  analyserNode.minDecibels = -60;
+  analyserNode.minDecibels = -40;
   analyserNode.fftSize = FFT_SIZE;
   gainNode.connect(analyserNode);
   const fftData = new Uint8Array(analyserNode.frequencyBinCount);
