@@ -23,3 +23,25 @@ export function centerPos(rect:DOMRect, svg:SVGGraphicsElement) {
 export function svgScale(svg:SVGGraphicsElement) :number | undefined{
     return svg.getScreenCTM()?.inverse().a;
 }
+
+// commands from https://github.com/djipco/webmidi/blob/master/src/webmidi.js
+
+export function parseMidiEvent(e:MidiMessageEvent):MidiEvent {
+    const command = e.data[0] >> 4;
+    const channel = (e.data[0] & 0xf) + 1;
+    let data1, data2;
+
+    if (e.data.length > 1) {
+      data1 = e.data[1];
+      data2 = e.data.length > 2 ? e.data[2] : undefined;
+    }
+
+    // Returned event
+    return {
+      command,
+      channel,
+      timestamp: e.timeStamp,
+      data1,
+      data2
+    };
+}

@@ -5,17 +5,16 @@
     import Port from "../controls/Port.svelte";
     export let audioContext: AudioContext;
     export let front: boolean;
-    export const output: AudioPort<GainNode> = Object.assign(
+    console.log('creating new audios');
+    const output: AudioPort<GainNode> = Object.assign(
         audioContext.createGain(),
         {
             isOutput: true,
         }
     );
-    export const inputs: Array<AudioPort<GainNode>> = range(8).map((i) =>
-        Object.assign(audioContext.createGain(), {
-            connections: [],
-            isOutput: false,
-        })
+    
+    const inputs: Array<GainNode> = range(8).map((i) =>
+        audioContext.createGain()
     );
     inputs.forEach((i) => i.connect(output));
 </script>

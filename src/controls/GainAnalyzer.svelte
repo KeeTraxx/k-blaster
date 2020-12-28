@@ -19,7 +19,6 @@
   gainNode.connect(analyserNode);
   const fftData = new Uint8Array(analyserNode.frequencyBinCount);
   requestAnimationFrame(draw);
-  console.log("createAna", analyserNode.smoothingTimeConstant);
   const scaleY = scaleLinear()
     .domain([0, 255])
     .range([ height - 10, 10]);
@@ -27,7 +26,6 @@
     const scaleHeight = scaleLinear()
     .domain([0, 255])
     .range([0, height-20]);
-  console.log("create");
   function draw() {
     analyserNode.getByteFrequencyData(fftData);
     loudness = fftData.reduce((max, c) => Math.max(c, max), 0);

@@ -4,6 +4,9 @@
             "type": "MasterOutput"
         },
         {
+            "type": "MidiInput"
+        },
+        {
             "type": "Mixer"
         },
         {

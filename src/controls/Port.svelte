@@ -1,9 +1,9 @@
-
 <script>
+    import type { MidiReceiver } from "src/lib/MidiReceiver";
+
     import { onDestroy, onMount } from "svelte";
     import { startPort, portMap } from "../store/CableStore";
     import type { Port } from "../types";
-    import WebMidi from "webmidi";
 
     export let x: number = 0;
     export let y: number = 0;
@@ -29,7 +29,7 @@
     }
 
     onMount(() => {
-        portMap.update(m => {
+        portMap.update((m) => {
             port.element = element;
             return m;
         });
@@ -51,7 +51,7 @@
 
             connect(
                 port,
-                [...$portMap.values()].find(p => p.element === el)
+                [...$portMap.values()].find((p) => p.element === el)
             );
             startPort.set(undefined);
             window.removeEventListener("mouseup", mouseUpListener);
@@ -68,7 +68,7 @@
                 console.log(el);
                 connect(
                     port,
-                    [...$portMap.values()].find(p => p.element === el)
+                    [...$portMap.values()].find((p) => p.element === el)
                 );
                 ev.preventDefault();
             }
@@ -92,12 +92,10 @@
         if (output.node instanceof AudioNode) {
             console.log("disconnect Audionodes!");
             output.node.disconnect(input.node);
-        } else if (output.type === "MIDI") {
-            console.log(
-                "discconnect Midi Nodes! But not implemented yet..."
-            );
+        } else if (output.type === "midi") {
+            console.log("discconnect Midi Nodes! But not implemented yet...");
         }
-        portMap.update(m => m);
+        portMap.update((m) => m);
     }
 
     function connect(a: Port, b: Port | undefined) {
@@ -107,10 +105,9 @@
         }
 
         if (a.type !== b.type) {
-            console.warn("Ports not of same type");
+            console.warn("Ports not of same type", a, b);
             return;
         }
-        console.log(WebMidi.inputs, WebMidi.outputs);
 
         if (a.isOutput === b.isOutput) {
             console.warn(
@@ -130,11 +127,14 @@
         if (output.node instanceof AudioNode) {
             console.log("connect Audionodes!");
             output.node.connect(input.node);
-        } else if (output.type === "MIDI") {
-            console.log("connect Midi Nodes! But not implemented yet...");
+        } else if (output.type === "midi") {
+            console.log("connect Midi Nodes! But not implemented yet...", output, input, output.node.addListener);
+            const midiReceiver: MidiReceiver = input.node;
+            const midiEmitter: MIDIOutput = output.node;
+            midiEmitter.addEventListener('midimessage', (ev) => midiReceiver.emit('midimessage', ev));
         }
 
-        portMap.update(m => m);
+        portMap.update((m) => m);
     }
 </script>
 

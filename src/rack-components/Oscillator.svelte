@@ -1,13 +1,16 @@
 <script>
-import Port from "../controls/Port.svelte";
+    import { MidiReceiver } from "../lib/MidiReceiver";
 
-    import type { AudioPort, MidiNote } from "../types";
+    import Port from "../controls/Port.svelte";
+
+    import type { MidiNote } from "../types";
+    import { parseMidiEvent } from "../Util";
     export let audioContext: AudioContext;
     export let front: boolean;
-    export const output: AudioPort<GainNode> = Object.assign(
-        audioContext.createGain(),
-        { isOutput: true }
-    );
+    export const output: GainNode = audioContext.createGain();
+    const input: MidiReceiver = new MidiReceiver();
+
+    input.on("midimessage", ev => console.log(parseMidiEvent(ev)));
 
     const oscillators: Array<
         { osc: OscillatorNode; gain: GainNode } | undefined
@@ -70,7 +73,12 @@ import Port from "../controls/Port.svelte";
     <g>
         <rect width="960" height="100" fill="#bbb" />
         <g transform="translate(20,20)">
-            <Port node={output} isOutput={true} type="audio" label="Audio out" />
+            <Port
+                node={output}
+                isOutput={true}
+                type="audio"
+                label="Audio out" />
+            <Port x={200} node={input} isOutput={false} type="midi" label="MIDI in" />
         </g>
     </g>
 {/if}

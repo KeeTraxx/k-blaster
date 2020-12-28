@@ -14,6 +14,8 @@
     import Oscillator from "./Oscillator.svelte";
     import Shaders from "./Shaders.svelte";
     import Cable from "./Cable.svelte";
+    import MidiInput from "./MidiInput.svelte";
+    import MidiKeyboard from "./MidiKeyboard.svelte";
     export let audioContext: AudioContext;
     export let configuration: {
         devices: Array<{ type: string }>;
@@ -28,6 +30,8 @@
         MasterOutput: { component: MasterOutput, heightUnits: 0.5 },
         Mixer: { component: Mixer, heightUnits: 2 },
         Oscillator: { component: Oscillator, heightUnits: 1 },
+        MidiInput: { component: MidiInput, heightUnits: 0.5 },
+        MidiKeyboard: { component: MidiKeyboard, heightUnits: 2 },
     };
     const devices: Array<Device> = [];
     const layout = configuration.devices.reduce<Array<number>>(
@@ -101,7 +105,6 @@
             tempCable = undefined;
         }
     });
-
 </script>
 
 <style>
