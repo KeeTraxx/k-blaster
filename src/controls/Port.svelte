@@ -40,9 +40,9 @@
     });
 
     function start(ev: Event) {
+        startPort.set(port.connectedTo || port);
         disconnect();
         console.log("start", ev);
-        startPort.set(port);
         const mouseUpListener = (ev: MouseEvent) => {
             console.log("mousup", ev);
             const el = ev.target;
@@ -93,7 +93,7 @@
             console.log("disconnect Audionodes!");
             output.node.disconnect(input.node);
         } else if (output.type === "midi") {
-            console.log("discconnect Midi Nodes! But not implemented yet...");
+            output.node.removeEventListener("midimessage", output.node.listener);
         }
         portMap.update((m) => m);
     }
@@ -131,7 +131,9 @@
             console.log("connect Midi Nodes! But not implemented yet...", output, input, output.node.addListener);
             const midiReceiver: MidiReceiver = input.node;
             const midiEmitter: MIDIOutput = output.node;
-            midiEmitter.addEventListener('midimessage', (ev) => midiReceiver.emit('midimessage', ev));
+            const listener = (ev) => midiReceiver.emit('midimessage', ev);
+            midiEmitter.listener = listener;
+            midiEmitter.addEventListener('midimessage', listener);
         }
 
         portMap.update((m) => m);

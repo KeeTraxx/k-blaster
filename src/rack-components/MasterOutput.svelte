@@ -3,6 +3,7 @@
     import { onMount } from "svelte";
 
     import type { AudioPort } from "../types";
+import DigitalDisplay from "../controls/DigitalDisplay.svelte";
     export let audioContext: AudioContext;
     export let front: boolean;
     export const inputs: Array<AudioPort<GainNode>> = [
@@ -55,10 +56,9 @@
             fill="#eee"
             rx={3}
             />
-        <rect x="15" y="5" width=500 height=20 fill="#020"></rect>
         <rect x="525" y="5" width=150 height=20 fill="#f44" stroke="#fff"></rect>
         <text x="530" y="20" width=500 height=20 fill="#fff">Next audio device</text>
-        <text x="20" y="20" fill="#080">{outputDevices[selectedDeviceIndex]?.label}</text>
+        <DigitalDisplay x={20} y={20} text={outputDevices[selectedDeviceIndex]?.label}></DigitalDisplay>
         <text x="900" y="40" fill="white">MasterOut</text>
     </g>
 {:else}
