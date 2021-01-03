@@ -27,18 +27,20 @@
   export const id = `dd-${count++}`;
 
   function scroll() {
+    if (!textEl) {
+      return;
+    }
     ledBox = textEl.getBBox();
-    console.log(ledBox);
     if (ledBox.width > width) {
       select(textEl)
         .attr("x", "0")
         .transition("scroll")
         .ease(easeLinear)
-        .delay(500)
+        .delay(1500)
         .duration(text.length * 150)
         .attr("x", `-${ledBox.width - width}`)
         .transition()
-        .duration(500)
+        .duration(1500)
         .on("end", scroll);
     } else {
       select(textEl).attr("x", null).transition();

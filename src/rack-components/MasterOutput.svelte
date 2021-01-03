@@ -31,15 +31,20 @@ import SvgButton from "../controls/SvgButton.svelte";
     });
 
     $: {
-        console.log("selectedDevice", selectedDeviceIndex);
         // @ts-ignore
         audio.setSinkId(outputDevices[selectedDeviceIndex]?.deviceId);
     }
 
     function next() {
-        console.log('next', selectedDeviceIndex);
-        selectedDeviceIndex = (selectedDeviceIndex + 1) % outputDevices.length;
+        selectedDeviceIndex++;
+        selectedDeviceIndex = selectedDeviceIndex % outputDevices.length;
+    }
 
+    function previous() {
+        selectedDeviceIndex--;
+        if (selectedDeviceIndex === -1) {
+            selectedDeviceIndex = outputDevices.length-1;
+        }
     }
 </script>
 <style>
@@ -50,21 +55,18 @@ import SvgButton from "../controls/SvgButton.svelte";
 </style>
 
 {#if front}
-    <g on:click={() => next()} >
+    <g>
         <rect
             width="960"
             height="50"
             fill="#eee"
             rx={3}
             />
-        <rect x="525" y="5" width=150 height=20 fill="#f44" stroke="#fff"></rect>
         <g transform="translate(20,20)">
-            <SvgButton />
+            <SvgButton text="◀" on:click={() => next()} />
             <DigitalDisplay x={32} text={outputDevices[selectedDeviceIndex]?.label} />
+            <SvgButton x={180} text="▶" on:click={() => previous()} />
         </g>
-        <text x="530" y="20" width=500 height=20 fill="#fff">Next audio device</text>
-        
-        <text x="900" y="40" fill="white">MasterOut</text>
     </g>
 {:else}
     <g>
