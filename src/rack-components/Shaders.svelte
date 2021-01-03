@@ -92,4 +92,16 @@
         <feOffset dx="1" dy="1" result="offset" />
         <feComposite in="SourceGraphic" in2="offset" result="composite2" />
     </filter>
+    <filter id="black-glow">
+      <feColorMatrix type="matrix" values=
+                  "0 0 0 0   0
+                   0 0 0 0   0
+                   0 0 0 0   0
+                   0 0 0 0.7 0"/>
+      <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
+      <feMerge>
+          <feMergeNode in="coloredBlur"/>
+          <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+  </filter>
 </defs>

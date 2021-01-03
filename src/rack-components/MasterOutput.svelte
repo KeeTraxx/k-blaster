@@ -57,8 +57,12 @@ import DigitalDisplay from "../controls/DigitalDisplay.svelte";
             rx={3}
             />
         <rect x="525" y="5" width=150 height=20 fill="#f44" stroke="#fff"></rect>
+        <g transform="translate(20,20)">
+            <rect rx="5" height="16" width="16" filter="url(#black-glow)" />
+            <DigitalDisplay x={32} text={outputDevices[selectedDeviceIndex]?.label} />
+        </g>
         <text x="530" y="20" width=500 height=20 fill="#fff">Next audio device</text>
-        <DigitalDisplay x={20} y={20} text={outputDevices[selectedDeviceIndex]?.label}></DigitalDisplay>
+        
         <text x="900" y="40" fill="white">MasterOut</text>
     </g>
 {:else}
