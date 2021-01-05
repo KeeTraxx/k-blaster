@@ -2,7 +2,7 @@
   import { afterUpdate, createEventDispatcher } from "svelte";
   const dispatch = createEventDispatcher();
   let textEl: SVGTextElement;
-  export let text: string = 'n/a';
+  export let text: string = "n/a";
   export let x: number = 0;
   export let y: number = 0;
   export let padding: number = 5;
@@ -32,7 +32,14 @@
   }
 </style>
 
-<g transform="translate({x}, {y+7})" on:click={e => dispatch('click', e)}>
+<g
+  transform="translate({x}, {y + 7})"
+  on:click|stopPropagation|preventDefault={(e) => dispatch(e.type, e)}
+  on:touchstart|stopPropagation|preventDefault={(e) => dispatch(e.type, e)}
+  on:touchend|stopPropagation|preventDefault={(e) => dispatch(e.type, e)}
+  on:mousedown|stopPropagation|preventDefault={(e) => dispatch(e.type, e)}
+  on:mouseup|stopPropagation|preventDefault={(e) => dispatch(e.type, e)}
+  >
   <rect
     fill="grey"
     rx="5"

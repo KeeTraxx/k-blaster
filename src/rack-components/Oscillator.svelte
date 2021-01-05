@@ -7,10 +7,11 @@
     import type { MidiEvent } from "../Util";
     import Panel from "../controls/Panel.svelte";
     import DigitalSelector from "../controls/DigitalSelector.svelte";
+    import SvgButton from "../controls/SvgButton.svelte";
     export let audioContext: AudioContext;
     export let front: boolean;
     export const output: GainNode = audioContext.createGain();
-    let oscillatorType: OscillatorType = 'sine';
+    let oscillatorType: OscillatorType = "sine";
     const input: MidiReceiver = new MidiReceiver();
 
     input.on("midimessage", (ev) => {
@@ -59,47 +60,47 @@
         );
         oscillators[note.data1] = undefined;
     }
+
+    async function playNote(midiNote: number, millis: number) {
+        play({
+            channel: 0,
+            data1: midiNote,
+            timestamp: 0,
+            command: MIDI_COMMANDS.noteon,
+            data2: 100,
+        });
+        await new Promise((resolve) => setTimeout(resolve, millis));
+        stop({
+            channel: 0,
+            data1: midiNote,
+            timestamp: 0,
+            command: MIDI_COMMANDS.noteon,
+            data2: 50,
+        });
+    }
+
+    async function testSoundStart() {
+        for (let i = 0; i < 8; i++) {
+            await playNote(60+i, 300);
+        }
+    }
 </script>
 
 <Panel type="Oscillator" width={960} height={100} fill="#dbb">
     {#if front}
         <DigitalSelector
-            on:select={(v) => oscillatorType = v.detail.value}
+            on:select={(v) => (oscillatorType = v.detail.value)}
             x={20}
             y={20}
             items={['sine', 'square', 'triangle'].map((label) => ({
                 label,
                 value: label,
             }))} />
-        <rect x=300 y=30 height=10 width=10
-            on:touchstart|stopPropagation|preventDefault={(e) => play({
-                    channel: 1,
-                    timestamp: 0,
-                    command: MIDI_COMMANDS.noteon,
-                    data1: 67,
-                    data2: 127,
-                })}
-            on:touchend|stopPropagation|preventDefault={(e) => stop({
-                    channel: 1,
-                    timestamp: 0,
-                    command: MIDI_COMMANDS.noteoff,
-                    data1: 67,
-                    data2: 127,
-                })}
-            on:mousedown={(e) => play({
-                    channel: 1,
-                    timestamp: 0,
-                    command: MIDI_COMMANDS.noteon,
-                    data1: 67,
-                    data2: 127,
-                })}
-            on:mouseup={(e) => stop({
-                    channel: 1,
-                    timestamp: 0,
-                    command: MIDI_COMMANDS.noteoff,
-                    data1: 67,
-                    data2: 127,
-                })} />
+        <SvgButton
+            text="SoundTest"
+            on:click={(e) => testSoundStart()}
+            x={250}
+            y={20} />
     {:else}
         <g transform="translate(20,20)">
             <Port
