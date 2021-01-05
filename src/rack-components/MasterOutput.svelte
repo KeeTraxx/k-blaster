@@ -3,8 +3,9 @@
     import { onMount } from "svelte";
 
     import type { AudioPort } from "../types";
-import DigitalDisplay from "../controls/DigitalDisplay.svelte";
-import SvgButton from "../controls/SvgButton.svelte";
+    import DigitalDisplay from "../controls/DigitalDisplay.svelte";
+    import SvgButton from "../controls/SvgButton.svelte";
+    import Panel from "../controls/Panel.svelte";
     export let audioContext: AudioContext;
     export let front: boolean;
     export const inputs: Array<AudioPort<GainNode>> = [
@@ -43,36 +44,35 @@ import SvgButton from "../controls/SvgButton.svelte";
     function previous() {
         selectedDeviceIndex--;
         if (selectedDeviceIndex === -1) {
-            selectedDeviceIndex = outputDevices.length-1;
+            selectedDeviceIndex = outputDevices.length - 1;
         }
     }
 </script>
+
 <style>
-    text {
+    :global(text) {
         pointer-events: none;
         user-select: none;
     }
 </style>
 
-{#if front}
-    <g>
-        <rect
-            width="960"
-            height="50"
-            fill="#eee"
-            rx={3}
-            />
-        <g transform="translate(20,20)">
+<Panel height={50} type="MasterOutput" fill="#eee">
+    {#if front}
+        <g transform="translate(20,13)">
             <SvgButton text="◀" on:click={() => next()} />
-            <DigitalDisplay x={32} text={outputDevices[selectedDeviceIndex]?.label} />
+            <DigitalDisplay
+                x={32}
+                text={outputDevices[selectedDeviceIndex]?.label} />
             <SvgButton x={180} text="▶" on:click={() => previous()} />
         </g>
-    </g>
-{:else}
-    <g>
-        <rect width="960" height="50" fill="#eee" />
+    {:else}
         <g transform="translate(100,20)">
-            <Port x={50} node={inputs[0]} isOutput={false} label="Input" type="audio" />
+            <Port
+                x={50}
+                node={inputs[0]}
+                isOutput={false}
+                label="Input"
+                type="audio" />
         </g>
-    </g>
-{/if}
+    {/if}
+</Panel>

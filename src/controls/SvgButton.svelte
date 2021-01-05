@@ -27,6 +27,9 @@
   text {
     dominant-baseline: hanging;
   }
+  rect {
+    cursor: pointer;
+  }
 </style>
 
 <g transform="translate({x}, {y+7})" on:click={e => dispatch('click', e)}>

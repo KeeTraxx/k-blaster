@@ -9,6 +9,7 @@
   export let x: number = 0;
   export let y: number = 0;
   export let width: number = 120;
+  export let fontSize: string = "";
   let ledBox: DOMRect = {
     x: 0,
     y: 0,
@@ -24,8 +25,7 @@
   export let text: string = "";
   let textEl: SVGTextElement;
   let rootEl: SVGGElement;
-  export const id = `dd-${count++}`;
-
+  const id = `dd-${count++}`;
   function scroll() {
     if (!textEl) {
       return;
@@ -33,7 +33,7 @@
     ledBox = textEl.getBBox();
     if (ledBox.width > width) {
       select(textEl)
-        .attr("x", "0")
+        .attr('x', 0)
         .transition("scroll")
         .ease(easeLinear)
         .delay(1500)
@@ -43,17 +43,16 @@
         .duration(1500)
         .on("end", scroll);
     } else {
-      select(textEl).attr("x", null).transition();
+      select(textEl)
+      .attr("x", (width - ledBox.width) / 2);
     }
     ledBox.width = width;
   }
 
   afterUpdate(() => {
     select(textEl)
-      .attr("x", "0")
-      .transition("scroll")
-      .duration(1)
-      .attr("x", "0");
+    .attr('x', null);
+    console.log("updating...");
     scroll();
   });
 </script>
@@ -71,7 +70,7 @@
 </style>
 
 <g bind:this={rootEl} transform="translate({x},{y})">
-  <g transform="translate({padding},{padding+2})">
+  <g transform="translate({padding},{padding + 2})">
     <mask {id}>
       <rect
         x={ledBox.x - padding}
@@ -87,6 +86,8 @@
       height={ledBox.height + padding * 2}
       rx="4"
       filter="url(#black-glow)" />
-    <text bind:this={textEl} mask="url(#{id})">{text}</text>
+    <text bind:this={textEl} font-size={fontSize} mask="url(#{id})">
+      {text}
+    </text>
   </g>
 </g>

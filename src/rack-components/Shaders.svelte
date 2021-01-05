@@ -104,4 +104,15 @@
           <feMergeNode in="SourceGraphic"/>
       </feMerge>
   </filter>
+  <linearGradient id="alpha0" x1="0%" y1="0%" x2="100%" y2="0%" gradientTransform="rotate(90)">
+    <stop offset="0%" stop-color="#000" stop-opacity="1" />
+    <stop offset="90%" stop-color="#000" stop-opacity="0" />
+    <stop offset="92%" stop-color="#000" stop-opacity="0" />
+    <stop offset="96%" stop-color="#fff" stop-opacity="0.8" />
+    <stop offset="98%" stop-color="#fff" stop-opacity="0" />
+  </linearGradient>
+  <linearGradient id="alpha180" x1="0%" y1="0%" x2="100%" y2="0%" gradientTransform="rotate(90)">
+    <stop offset="0%" stop-color="#000" stop-opacity="0" />
+    <stop offset="100%" stop-color="#000" stop-opacity="1" />
+  </linearGradient>
 </defs>

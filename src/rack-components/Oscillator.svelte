@@ -5,9 +5,12 @@
 
     import { MIDI_COMMANDS, parseMidiEvent } from "../Util";
     import type { MidiEvent } from "../Util";
+    import Panel from "../controls/Panel.svelte";
+    import DigitalSelector from "../controls/DigitalSelector.svelte";
     export let audioContext: AudioContext;
     export let front: boolean;
     export const output: GainNode = audioContext.createGain();
+    let oscillatorType: OscillatorType = 'sine';
     const input: MidiReceiver = new MidiReceiver();
 
     input.on("midimessage", (ev) => {
@@ -37,6 +40,7 @@
             gain: audioContext.createGain(),
         });
         oscDevice.gain.gain.value = 1;
+        oscDevice.osc.type = oscillatorType;
         // https://en.wikipedia.org/wiki/MIDI_tuning_standard
         oscDevice.osc.frequency.value =
             Math.pow(2, (note.data1 - 69) / 12) * 440;
@@ -57,12 +61,17 @@
     }
 </script>
 
-{#if front}
-    <g>
-        <rect
-            width="960"
-            height="100"
-            fill="#bbb"
+<Panel type="Oscillator" width={960} height={100} fill="#dbb">
+    {#if front}
+        <DigitalSelector
+            on:select={(v) => oscillatorType = v.detail.value}
+            x={20}
+            y={20}
+            items={['sine', 'square', 'triangle'].map((label) => ({
+                label,
+                value: label,
+            }))} />
+        <rect x=300 y=30 height=10 width=10
             on:touchstart|stopPropagation|preventDefault={(e) => play({
                     channel: 1,
                     timestamp: 0,
@@ -91,11 +100,7 @@
                     data1: 67,
                     data2: 127,
                 })} />
-        <text x="20" y="20">Oscillator</text>
-    </g>
-{:else}
-    <g>
-        <rect width="960" height="100" fill="#bbb" />
+    {:else}
         <g transform="translate(20,20)">
             <Port
                 node={output}
@@ -109,5 +114,5 @@
                 type="midi"
                 label="MIDI in" />
         </g>
-    </g>
-{/if}
+    {/if}
+</Panel>
