@@ -112,7 +112,7 @@
         if (a.isOutput === b.isOutput) {
             console.warn(
                 "Can only connect output with inputs",
-                a.node instanceof AudioNode,
+                a,
                 b
             );
             return;
