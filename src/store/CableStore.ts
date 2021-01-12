@@ -7,8 +7,9 @@ export const startPort = writable<Port|undefined>(undefined);
 export const portMap = writable<Map<any, Port>>(new Map());
 // @ts-ignore
 export const svgStore = writable<SVGSVGElement>(document.createElement("svg") as SVGSVGElement);
+export const transform = writable<{x:number, y:number, k: number}>({x: 0, y: 0, k: 1});
 
-export const cables = derived([portMap, svgStore], ([$portMap, $svgStore]) => 
+export const cables = derived([portMap, svgStore, transform], ([$portMap, $svgStore, $transform]) => 
 {
   if ($svgStore) {
     return [...$portMap.values()]
@@ -19,7 +20,10 @@ export const cables = derived([portMap, svgStore], ([$portMap, $svgStore]) =>
       if (p.element && p.connectedTo?.element) {
         const {x:x1,y:y1} = centerPos(p.element.getBoundingClientRect(), $svgStore);
         const {x:x2,y:y2} = centerPos(p.connectedTo.element.getBoundingClientRect(), $svgStore);
-        return {x1,y1,x2,y2};
+        return {x1: (x1 - $transform.x) / $transform.k,
+          y1: (y1 - $transform.y) / $transform.k,
+          x2: (x2 - $transform.x) / $transform.k,
+          y2: (y2 - $transform.y) / $transform.k};
       } else {
         return undefined;
       }

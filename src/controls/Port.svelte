@@ -93,7 +93,10 @@
             console.log("disconnect Audionodes!");
             output.node.disconnect(input.node);
         } else if (output.type === "midi") {
-            output.node.removeEventListener("midimessage", output.node.listener);
+            output.node.removeEventListener(
+                "midimessage",
+                output.node.listener
+            );
         }
         portMap.update((m) => m);
     }
@@ -110,11 +113,7 @@
         }
 
         if (a.isOutput === b.isOutput) {
-            console.warn(
-                "Can only connect output with inputs",
-                a,
-                b
-            );
+            console.warn("Can only connect output with inputs", a, b);
             return;
         }
 
@@ -128,12 +127,17 @@
             console.log("connect Audionodes!");
             output.node.connect(input.node);
         } else if (output.type === "midi") {
-            console.log("connect Midi Nodes! But not implemented yet...", output, input, output.node.addListener);
+            console.log(
+                "connect Midi Nodes! But not implemented yet...",
+                output,
+                input,
+                output.node.addListener
+            );
             const midiReceiver: MidiReceiver = input.node;
             const midiEmitter: MIDIOutput = output.node;
-            const listener = (ev) => midiReceiver.emit('midimessage', ev);
+            const listener = (ev) => midiReceiver.emit("midimessage", ev);
             midiEmitter.listener = listener;
-            midiEmitter.addEventListener('midimessage', listener);
+            midiEmitter.addEventListener("midimessage", listener);
         }
 
         portMap.update((m) => m);
@@ -152,11 +156,12 @@
     }
 </style>
 
-<text {x} y={y - 8}>{label}</text>
-<circle
-    r="5"
-    cx={x}
-    cy={y}
-    bind:this={element}
+<g
+    transform="translate({x},{y})"
     on:mousedown|stopPropagation={(e) => start(e)}
-    on:touchstart|stopPropagation={(e) => start(e)} />
+    on:touchstart|stopPropagation={(e) => start(e)}
+    on:click={(e) => console.log(element.getBBox())}
+    >
+    <text y="-8">{label}</text>
+    <circle r="5" bind:this={element} />
+</g>

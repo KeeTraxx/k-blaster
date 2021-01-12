@@ -1,6 +1,6 @@
 export function svgPos({ x, y }: { x: number, y: number }, svg: SVGGraphicsElement): {x:number, y:number} {
     const offset = svg.getBoundingClientRect();
-  
+
     const matrix = svg.getScreenCTM()?.inverse();
 
     if (matrix) {

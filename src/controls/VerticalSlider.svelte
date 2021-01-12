@@ -66,21 +66,21 @@
 </style>
 
 <svelte:window
-    on:mouseup={(e) => (dragging = false)}
-    on:mousemove={(e) => dragging && mousemove(e)}
-    on:touchstart={(e) => touchStart(e)}
-    on:touchmove={(e) => touchmove(e)}
-    on:touchend={(e) => (dragging = false)} />
+    on:mouseup|preventDefault|stopPropagation={(e) => (dragging = false)}
+    on:mousemove|preventDefault|stopPropagation={(e) => dragging && mousemove(e)}
+    on:touchstart|preventDefault|stopPropagation={(e) => touchStart(e)}
+    on:touchmove|preventDefault|stopPropagation={(e) => touchmove(e)}
+    on:touchend|preventDefault|stopPropagation={(e) => (dragging = false)} />
 <g transform="translate({x},{y})">
     <g
         transform="translate(2,2)"
-        on:mousewheel={(e) => handleWheel(e)}
+        on:mousewheel|preventDefault|stopPropagation={(e) => handleWheel(e)}
         bind:this={rootEl}>
         <rect width="15" height={height} fill="rgba(0,0,0,0)" />
         <line x1="6" y1="16" x2="6" y2={height-20} />
         <rect
-            on:mousedown={(e) => (dragging = true)}
-            on:touchstart={(e) => (dragging = true)}
+            on:mousedown|preventDefault|stopPropagation={(e) => (dragging = true)}
+            on:touchstart|preventDefault|stopPropagation={(e) => (dragging = true)}
             transform="translate(0,{scale(value)})"
             width="12"
             height="32"

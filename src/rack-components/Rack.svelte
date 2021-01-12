@@ -1,7 +1,7 @@
 <script>
+    import { zoom, select } from "d3";
     import { centerPos, svgPos } from "../Util";
-
-    import { cables, startPort, svgStore } from "../store/CableStore";
+    import { cables, startPort, svgStore, transform } from "../store/CableStore";
 
     interface Device extends Svelte2TsxComponent {
         inputs: Array<AudioNode>;
@@ -16,13 +16,14 @@
     import Cable from "./Cable.svelte";
     import MidiInput from "./MidiInput.svelte";
     import MidiKeyboard from "./MidiKeyboard.svelte";
-import VirtualKeyboard from "./VirtualKeyboard.svelte";
+    import VirtualKeyboard from "./VirtualKeyboard.svelte";
     export let audioContext: AudioContext;
     export let configuration: {
         devices: Array<{ type: string }>;
         connections: Array<any>;
     };
     export let front: boolean = true;
+    let rackEl: SVGGElement;
 
     const deviceMap: Record<
         string,
@@ -33,7 +34,7 @@ import VirtualKeyboard from "./VirtualKeyboard.svelte";
         Oscillator: { component: Oscillator, heightUnits: 1 },
         MidiInput: { component: MidiInput, heightUnits: 0.5 },
         MidiKeyboard: { component: MidiKeyboard, heightUnits: 2 },
-        VirtualKeyboard: {component: VirtualKeyboard, heightUnits: 2}
+        VirtualKeyboard: { component: VirtualKeyboard, heightUnits: 2 },
     };
     const devices: Array<Device> = [];
     const layout = configuration.devices.reduce<Array<number>>(
@@ -45,8 +46,23 @@ import VirtualKeyboard from "./VirtualKeyboard.svelte";
         },
         [0]
     );
+    let zoomFactor: number = 1;
+    let scrollY: number = 0;
+    let scrollX: number = 0;
     onMount(() => {
-        console.log(devices[1].output);
+        const z = zoom()
+            .on("zoom", (e) => {
+                zoomFactor = e.transform.k;
+                scrollY = e.transform.y;
+                scrollX = e.transform.x;
+                transform.set(e.transform);
+            })
+            .scaleExtent([1, 4])
+            .translateExtent([
+                [0, -960],
+                [960, 5000],
+            ]);
+        select($svgStore).call(z);
     });
     function keydown(ev: KeyboardEvent) {
         if (ev.key === "Tab") {
@@ -62,8 +78,8 @@ import VirtualKeyboard from "./VirtualKeyboard.svelte";
         if (tempCable) {
             const { x, y } = svgPos(
                 {
-                    x: ev.clientX,
-                    y: ev.clientY,
+                    x: (ev.clientX - scrollX) / zoomFactor,
+                    y: (ev.clientY - scrollY) / zoomFactor,
                 },
                 $svgStore
             );
@@ -77,8 +93,8 @@ import VirtualKeyboard from "./VirtualKeyboard.svelte";
             const touch = ev.changedTouches[0];
             const { x, y } = svgPos(
                 {
-                    x: touch.clientX,
-                    y: touch.clientY,
+                    x: (touch.clientX - scrollX) / zoomFactor,
+                    y: (touch.clientY - scrollY) / zoomFactor,
                 },
                 $svgStore
             );
@@ -89,15 +105,16 @@ import VirtualKeyboard from "./VirtualKeyboard.svelte";
 
     startPort.subscribe((port) => {
         if (port !== undefined && port.element) {
+            console.log(port.element.getBoundingClientRect());
             const { x, y } = centerPos(
                 port.element.getBoundingClientRect(),
                 $svgStore
             );
             tempCable = {
-                x1: x,
-                y1: y,
-                x2: x,
-                y2: y,
+                x1: (x - scrollX) / zoomFactor,
+                y1: (y - scrollY) / zoomFactor,
+                x2: (x - scrollX) / zoomFactor,
+                y2: (y - scrollY) / zoomFactor,
             };
             window.addEventListener("mousemove", mouseMoveListener);
             window.addEventListener("touchmove", touchMoveListener);
@@ -110,13 +127,6 @@ import VirtualKeyboard from "./VirtualKeyboard.svelte";
 </script>
 
 <style>
-    .cables line {
-        stroke: red;
-        stroke-width: 5px;
-        filter: url(#cable);
-        stroke-linecap: round;
-        pointer-events: none;
-    }
     svg {
         background-color: #333;
     }
@@ -129,26 +139,31 @@ import VirtualKeyboard from "./VirtualKeyboard.svelte";
     viewBox="0 0 960 500"
     preserveAspectRatio="xMidYMin meet">
     <Shaders />
-    {#each configuration.devices as device, i}
-        <g transform="translate(0, {layout[i]})">
-            <svelte:component
-                this={deviceMap[device.type].component}
-                {audioContext}
-                {front}
-                bind:this={devices[i]} />
-        </g>
-    {/each}
-    {#if !front}
-        <g class="cables">
-            {#if $cables}
-                <text x="40" y="40">{$cables}</text>
-                {#each $cables as cable}
-                    <Cable {...cable} />
-                {/each}
-            {/if}
-            {#if tempCable}
-                <Cable {...tempCable} />
-            {/if}
-        </g>
-    {/if}
+
+    <g
+        bind:this={rackEl}
+        transform="translate({scrollX}, {scrollY})scale({zoomFactor})">
+        {#each configuration.devices as device, i}
+            <g transform="translate(0, {layout[i]})">
+                <svelte:component
+                    this={deviceMap[device.type].component}
+                    {audioContext}
+                    {front}
+                    bind:this={devices[i]} />
+            </g>
+        {/each}
+        {#if !front}
+            <g class="cables">
+                {#if $cables}
+                    <text x="40" y="40">{$cables}</text>
+                    {#each $cables as cable}
+                        <Cable {...cable} />
+                    {/each}
+                {/if}
+                {#if tempCable}
+                    <Cable {...tempCable} />
+                {/if}
+            </g>
+        {/if}
+    </g>
 </svg>
