@@ -16,6 +16,7 @@
 
     input.on("midimessage", (ev) => {
         const e = parseMidiEvent(ev);
+        console.log(ev);
         switch (e.command) {
             case MIDI_COMMANDS.noteon:
                 play(e);

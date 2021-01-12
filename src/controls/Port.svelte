@@ -138,6 +138,7 @@
             const listener = (ev) => midiReceiver.emit("midimessage", ev);
             midiEmitter.listener = listener;
             midiEmitter.addEventListener("midimessage", listener);
+            midiEmitter.addEventListener("midimessage", e => console.log('inp', e))
         }
 
         portMap.update((m) => m);

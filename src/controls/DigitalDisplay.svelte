@@ -52,7 +52,6 @@
   afterUpdate(() => {
     select(textEl)
     .attr('x', null);
-    console.log("updating...");
     scroll();
   });
 </script>

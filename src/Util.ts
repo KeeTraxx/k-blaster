@@ -28,14 +28,15 @@ export interface MidiEvent {
     command: number;
     channel: number;
     timestamp: number;
-    data1: number;
-    data2: number;
+    data1?: number;
+    data2?: number;
 }
 
-export function parseMidiEvent(e:any):MidiEvent {
+export function parseMidiEvent(e:WebMidi.MIDIMessageEvent):MidiEvent {
+    console.log('mididata', e.data);
     const command = e.data[0] >> 4;
     const channel = (e.data[0] & 0xf) + 1;
-    let data1, data2;
+    let data1:number | undefined, data2:number | undefined;
 
     if (e.data.length > 1) {
       data1 = e.data[1];

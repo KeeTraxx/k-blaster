@@ -1,7 +1,12 @@
 <script>
     import { zoom, select } from "d3";
     import { centerPos, svgPos } from "../Util";
-    import { cables, startPort, svgStore, transform } from "../store/CableStore";
+    import {
+        cables,
+        startPort,
+        svgStore,
+        transform,
+    } from "../store/CableStore";
 
     interface Device extends Svelte2TsxComponent {
         inputs: Array<AudioNode>;
@@ -50,7 +55,7 @@
     let scrollY: number = 0;
     let scrollX: number = 0;
     onMount(() => {
-        const z = zoom()
+        const z = zoom<SVGGElement, any>()
             .on("zoom", (e) => {
                 zoomFactor = e.transform.k;
                 scrollY = e.transform.y;
@@ -62,7 +67,7 @@
                 [0, -960],
                 [960, 5000],
             ]);
-        select($svgStore).call(z);
+        select<SVGGElement, any>($svgStore).call(z).on("dblclick.zoom", null);
     });
     function keydown(ev: KeyboardEvent) {
         if (ev.key === "Tab") {
