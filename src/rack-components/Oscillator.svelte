@@ -8,6 +8,7 @@
     import Panel from "../controls/Panel.svelte";
     import DigitalSelector from "../controls/DigitalSelector.svelte";
     import SvgButton from "../controls/SvgButton.svelte";
+import PeriodicWaveDisplay from "../controls/PeriodicWaveDisplay.svelte";
     export let audioContext: AudioContext;
     export let front: boolean;
     export const output: GainNode = audioContext.createGain();
@@ -42,7 +43,13 @@
             gain: audioContext.createGain(),
         });
         oscDevice.gain.gain.value = 1;
-        oscDevice.osc.type = oscillatorType;
+
+        if (oscillatorType === 'custom') {
+            oscDevice.osc.setPeriodicWave(audioContext.createPeriodicWave([0,1,1,1], [0,1,1,1]));
+        } else {
+            oscDevice.osc.type = oscillatorType;
+        }
+
         // https://en.wikipedia.org/wiki/MIDI_tuning_standard
         oscDevice.osc.frequency.value =
             Math.pow(2, (note.data1 - 69) / 12) * 440;
@@ -93,7 +100,7 @@
             on:select={(v) => (oscillatorType = v.detail.value)}
             x={20}
             y={20}
-            items={['sine', 'square', 'triangle'].map((label) => ({
+            items={['sine', 'square', 'triangle', 'custom'].map((label) => ({
                 label,
                 value: label,
             }))} />
@@ -102,6 +109,7 @@
             on:click={(e) => testSoundStart()}
             x={250}
             y={20} />
+        <PeriodicWaveDisplay x={400} y={40} />
     {:else}
         <g transform="translate(20,20)">
             <Port
