@@ -8,11 +8,15 @@
     import Panel from "../controls/Panel.svelte";
     import DigitalSelector from "../controls/DigitalSelector.svelte";
     import SvgButton from "../controls/SvgButton.svelte";
-import PeriodicWaveDisplay from "../controls/PeriodicWaveDisplay.svelte";
+    import PeriodicWaveDisplay from "../controls/PeriodicWaveDisplay.svelte";
+    import Knob from "../controls/Knob.svelte";
     export let audioContext: AudioContext;
     export let front: boolean;
     export const output: GainNode = audioContext.createGain();
     let oscillatorType: OscillatorType = "sine";
+    
+    let customCosCoeffs: Float32Array = Float32Array.from([0,0,0,4,0,0,0,0,0,0]);
+    let customSinCoeffs: Float32Array = Float32Array.from([0,1,2,0,0,0,0,0,0,0]);
     const input: MidiReceiver = new MidiReceiver();
 
     input.on("midimessage", (ev) => {
@@ -45,7 +49,7 @@ import PeriodicWaveDisplay from "../controls/PeriodicWaveDisplay.svelte";
         oscDevice.gain.gain.value = 1;
 
         if (oscillatorType === 'custom') {
-            oscDevice.osc.setPeriodicWave(audioContext.createPeriodicWave([0,1,1,1], [0,1,1,1]));
+            oscDevice.osc.setPeriodicWave(audioContext.createPeriodicWave(customCosCoeffs, customSinCoeffs));
         } else {
             oscDevice.osc.type = oscillatorType;
         }
@@ -98,8 +102,10 @@ import PeriodicWaveDisplay from "../controls/PeriodicWaveDisplay.svelte";
     {#if front}
         <DigitalSelector
             on:select={(v) => (oscillatorType = v.detail.value)}
-            x={20}
-            y={20}
+            width={50}
+            x={10}
+            y={10}
+            selected={oscillatorType}
             items={['sine', 'square', 'triangle', 'custom'].map((label) => ({
                 label,
                 value: label,
@@ -107,9 +113,21 @@ import PeriodicWaveDisplay from "../controls/PeriodicWaveDisplay.svelte";
         <SvgButton
             text="SoundTest"
             on:click={(e) => testSoundStart()}
-            x={250}
-            y={20} />
-        <PeriodicWaveDisplay x={400} y={40} />
+            x={30}
+            y={45} />
+        <PeriodicWaveDisplay x={150} y={50} {oscillatorType} {customCosCoeffs} {customSinCoeffs} />
+        <g transform="translate(405, 15)">
+            {#each customCosCoeffs as cos, i }
+                <Knob bind:value={customCosCoeffs[i]} x={i*35}  step={0.1} />
+            {/each}
+            
+        </g>
+        <g transform="translate(405, 60)">
+        {#each customSinCoeffs as sin, i }
+                <Knob bind:value={customSinCoeffs[i]} x={i*35} step={0.1} />
+        {/each}
+        </g>
+        
     {:else}
         <g transform="translate(20,20)">
             <Port

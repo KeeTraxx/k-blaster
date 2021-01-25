@@ -1,7 +1,5 @@
 <script>
   import {
-    afterUpdate,
-    beforeUpdate,
     createEventDispatcher,
     onMount,
   } from "svelte";
@@ -11,7 +9,9 @@
 
   export let x: number = 0;
   export let y: number = 0;
+  export let width: number = 120;
   export let items: Array<{ label: string; value: any }> = [];
+  export let selected:any;
   const dispatch = createEventDispatcher();
   let selectedIndex = 0;
 
@@ -31,12 +31,18 @@
   }
 
   onMount(() => {
-    dispatch('select', items[selectedIndex]);
+    // dispatch('select', items[selectedIndex]);
+    if (items) {
+      selectedIndex = items.findIndex(({value}) => value === selected);
+      if (selectedIndex === -1) {
+        selectedIndex = 0;
+      }
+    }
   });
 </script>
 
 <g transform="translate({x},{y})">
   <SvgButton text="◀" on:click={() => previous()} />
-  <DigitalDisplay x={32} text={items[selectedIndex].label} />
-  <SvgButton x={180} text="▶" on:click={() => next()} />
+  <SvgButton x={width + 42} text="▶" on:click={() => next()} />
+  <DigitalDisplay {width} x={22} text={items[selectedIndex].label} />
 </g>
