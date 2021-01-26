@@ -1,4 +1,6 @@
 <script>
+import type { AbstractAudioDevice } from "src/lib/AbstractAudioDevice";
+
     import type { MidiReceiver } from "src/lib/MidiReceiver";
 
     import { onDestroy, onMount } from "svelte";
@@ -11,6 +13,7 @@
     export let isOutput: boolean;
     export let node: any;
     export let type: string;
+    export let device:AbstractAudioDevice;
 
     let element: SVGGraphicsElement;
     let port: Port;
@@ -18,6 +21,7 @@
         if (!$portMap.has(node)) {
             port = {
                 isOutput,
+                device,
                 node,
                 type,
             };

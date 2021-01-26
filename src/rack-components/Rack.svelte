@@ -13,7 +13,7 @@
         output: AudioNode;
         front: boolean;
     }
-    import { onMount, SvelteComponentDev } from "svelte/internal";
+    import { afterUpdate, onMount, SvelteComponentDev } from "svelte/internal";
     import Mixer from "./Mixer.svelte";
     import MasterOutput from "./MasterOutput.svelte";
     import Oscillator from "./Oscillator.svelte";
@@ -128,6 +128,16 @@
             window.removeEventListener("touchmove", touchMoveListener);
             tempCable = undefined;
         }
+    });
+
+    let started = false;
+
+    afterUpdate(() => {
+        if (!started) {
+            // connects
+            console.log('connects', devices);
+        }
+        started = true;
     });
 </script>
 

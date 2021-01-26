@@ -8,7 +8,7 @@
 </script>
 
 <style>
-  text {
+  g :global(text.panel) {
     text-anchor: end;
     dominant-baseline: ideographic;
     font-family: 'Audiowide', cursive;
@@ -20,7 +20,7 @@
 
 <g transform="translate({x},{y})">
   <rect {fill} {width} {height} rx="5" />
-  <text y={height} x={width - 10}>{type}</text>
+  <text class=panel y={height} x={width - 10}>{type}</text>
   <slot />
   <rect {width} height=5 fill="url(#alpha0)" />
   <rect transform="translate(0, {height-5})" {width} height=5 fill="url(#alpha180)" />
