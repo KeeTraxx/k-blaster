@@ -14,7 +14,6 @@
 </script>
 
 <Panel height={100} type="HostAudio" fill="#eee">
-  <circle r=10 />
   {#if front}
       <text y=20>front {[...physicalDevices].length}</text>
   {:else}

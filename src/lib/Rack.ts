@@ -1,5 +1,6 @@
 import type AbstractAudioDevice from './AbstractAudioDevice';
 import { HostAudio, HostAudioConfiguration } from './HostAudio';
+import { HostMidi, HostMidiConfiguration } from './HostMidi';
 import { Mixer, MixerConfiguration } from './Mixer';
 import { Oscillator, OscillatorConfiguration } from './Oscillator';
 
@@ -7,6 +8,13 @@ const constructorMap:Map<string, Object> = new Map();
 constructorMap.set('HostAudio', HostAudio);
 constructorMap.set('Mixer', Mixer);
 constructorMap.set('Oscillator', Oscillator);
+constructorMap.set('HostMidi', HostMidi);
+
+type AllConfigurations =
+ | HostAudioConfiguration
+ | MixerConfiguration
+ | OscillatorConfiguration
+ | HostMidiConfiguration;
 
 export default class Rack {
   private _devices:Array<AbstractAudioDevice> = [];
@@ -16,7 +24,7 @@ export default class Rack {
 
   }
 
-  public async loadConfig(configuration:Array<HostAudioConfiguration | MixerConfiguration | OscillatorConfiguration>):Promise<void> {
+  public async loadConfig(configuration:Array<AllConfigurations>):Promise<void> {
     this._devices = await Promise.all(configuration.map(async (deviceConfig) => {
       const c:any = constructorMap.get(deviceConfig.type);
       if (c === undefined) {

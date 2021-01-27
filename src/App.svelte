@@ -27,6 +27,7 @@
       rack = new Rack(audioContext);
       await rack.loadConfig([
         { id: "hostaudio", type: "HostAudio" },
+        { id: "hostmidi", type:"HostMidi"},
         { id: "mainMixer", type: "Mixer", numInputs: 8, numOutputs: 2 },
         {
           id: "testosci",
