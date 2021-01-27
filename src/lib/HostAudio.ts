@@ -1,4 +1,5 @@
-import { AbstractAudioDevice, DeviceConfiguration } from './AbstractAudioDevice';
+import type { DeviceConfiguration } from "types/k-blaster";
+import AbstractAudioDevice from "./AbstractAudioDevice";
 
 export interface HostAudioConfiguration extends DeviceConfiguration {
 

@@ -1,6 +1,6 @@
 import { range } from 'd3';
-
-import { AbstractAudioDevice, DeviceConfiguration } from './AbstractAudioDevice';
+import type { DeviceConfiguration } from 'types/k-blaster';
+import AbstractAudioDevice from './AbstractAudioDevice';
 
 export interface MixerConfiguration extends DeviceConfiguration {
   numInputs: number;

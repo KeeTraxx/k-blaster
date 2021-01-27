@@ -1,5 +1,4 @@
 import Events from 'events';
-
 interface MidiReceiverEvents {
   midimessage: WebMidi.MIDIMessageEvent
 }

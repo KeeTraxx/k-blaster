@@ -1,39 +1,8 @@
-import events, { EventEmitter } from 'events';
+import type { DeviceAudioPortReference, DeviceConfiguration, DeviceMidiPortReference } from 'types/k-blaster';
 import type { MidiReceiver } from './MidiReceiver';
 
-export interface DeviceConfiguration {
-  type: string;
-  id: string;
-  params?: {[name: string]: any};
-  outgoingAudioConnections?: Array<AudioConnection>;
-  outgoingMidiConnections?: Array<MidiConnection>;
-}
-
-export interface AudioConnection {
-  fromAudioPortIndex: number;
-  toDeviceId: string;
-  toAudioPortIndex: number;
-}
-
-export interface MidiConnection {
-  fromMidiPortIndex: number;
-  toDeviceId: string;
-  toMidiPortIndex: number;
-}
-
-export interface DeviceAudioPortReference {
-  device: AbstractAudioDevice;
-  node: AudioNode;
-}
-
-export interface DeviceMidiPortReference {
-  device: AbstractAudioDevice;
-  node: MidiReceiver;
-  // @ts-ignore
-  listener: EventReceiver<WebMidi.MIDIMessageEvent>;
-}
-
-export class AbstractAudioDevice<INPUT extends AudioNode = AudioNode, OUTPUT extends AudioNode = AudioNode> {
+export default class AbstractAudioDevice
+  <INPUT extends AudioNode = AudioNode, OUTPUT extends AudioNode = AudioNode> {
   protected _audioInputs:Array<INPUT> = [];
 
   protected _audioOutputs:Array<OUTPUT> = [];
@@ -63,7 +32,11 @@ export class AbstractAudioDevice<INPUT extends AudioNode = AudioNode, OUTPUT ext
     console.debug('booting', this.constructor.name);
   }
 
-  public static async create<T extends typeof AbstractAudioDevice>(this: T, audioContext:AudioContext, initialConfiguration: DeviceConfiguration):Promise<InstanceType<T>> {
+  public static async create<T extends typeof AbstractAudioDevice>(
+    this: T,
+    audioContext:AudioContext,
+    initialConfiguration: DeviceConfiguration,
+  ):Promise<InstanceType<T>> {
     const instance: InstanceType<T> = new this(audioContext, initialConfiguration) as InstanceType<T>;
     await instance.boot();
     return instance;

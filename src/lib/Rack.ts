@@ -1,4 +1,4 @@
-import type { AbstractAudioDevice, DeviceConfiguration } from './AbstractAudioDevice';
+import type AbstractAudioDevice from './AbstractAudioDevice';
 import { HostAudio, HostAudioConfiguration } from './HostAudio';
 import { Mixer, MixerConfiguration } from './Mixer';
 import { Oscillator, OscillatorConfiguration } from './Oscillator';

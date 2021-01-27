@@ -1,5 +1,6 @@
+import type { DeviceConfiguration } from 'types/k-blaster';
 import { MidiEvent, MIDI_COMMANDS, parseMidiEvent } from '../Util';
-import { AbstractAudioDevice, DeviceConfiguration } from './AbstractAudioDevice';
+import AbstractAudioDevice from './AbstractAudioDevice';
 import { MidiReceiver } from './MidiReceiver';
 
 export interface OscillatorConfiguration extends DeviceConfiguration {
