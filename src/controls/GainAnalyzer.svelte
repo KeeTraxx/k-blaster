@@ -21,11 +21,11 @@
   requestAnimationFrame(draw);
   const scaleY = scaleLinear()
     .domain([0, 255])
-    .range([ height - 10, 10]);
+    .range([height - 10, 10]);
 
-    const scaleHeight = scaleLinear()
+  const scaleHeight = scaleLinear()
     .domain([0, 255])
-    .range([0, height-20]);
+    .range([0, height - 20]);
   function draw() {
     analyserNode.getByteFrequencyData(fftData);
     loudness = fftData.reduce((max, c) => Math.max(c, max), 0);
@@ -36,14 +36,6 @@
     gainNode.disconnect(analyserNode);
   });
 </script>
-
-<style>
-  line {
-    stroke: url("#LoudnessGradient");
-    stroke-width: 1em;
-    stroke-dasharray: 5 3;
-  }
-</style>
 
 <defs>
   <linearGradient id="GainAnalyzerGradient" gradientTransform="rotate(90)">
@@ -70,7 +62,23 @@
     rx="3"
     fill="url(#GainAnalyzerGradient)"
     stroke="black"
-    stroke-width="1" />
+    stroke-width="1"
+  />
   <!-- rect x="3" y="8" width="14" height="120" fill="#0f0" /-->
-  <rect x="5" y={scaleY(loudness)} width="10" height={scaleHeight(loudness)} fill="url(#LoudnessGradient)" mask="url(#LoudnessMask)" />
+  <rect
+    x="5"
+    y={scaleY(loudness)}
+    width="10"
+    height={scaleHeight(loudness)}
+    fill="url(#LoudnessGradient)"
+    mask="url(#LoudnessMask)"
+  />
 </g>
+
+<style>
+  line {
+    stroke: url("#LoudnessGradient");
+    stroke-width: 1em;
+    stroke-dasharray: 5 3;
+  }
+</style>

@@ -1,4 +1,4 @@
-import { AbstractAudioDevice, DeviceConfiguration } from "./AbstractAudioDevice";
+import { AbstractAudioDevice, DeviceConfiguration } from './AbstractAudioDevice';
 
 export interface HostAudioConfiguration extends DeviceConfiguration {
 
@@ -6,7 +6,9 @@ export interface HostAudioConfiguration extends DeviceConfiguration {
 
 export class HostAudio extends AbstractAudioDevice {
   private _devices:Array<MediaDeviceInfo> = [];
+
   private _audioOutputMap:Map<string, MediaStreamAudioDestinationNode> = new Map();
+
   private _audioInputMap:Map<string, MediaStreamAudioSourceNode> = new Map();
 
   constructor(audioContext:AudioContext, initialConfiguration: DeviceConfiguration) {
@@ -24,7 +26,7 @@ export class HostAudio extends AbstractAudioDevice {
   }
 
   async getOutputDevices():Promise<Array<MediaDeviceInfo>> {
-    return (await this.updateDevices()).filter(f => f.kind === 'audiooutput');
+    return (await this.updateDevices()).filter((f) => f.kind === 'audiooutput');
   }
 
   async updateDevices():Promise<Array<MediaDeviceInfo>> {
@@ -32,8 +34,8 @@ export class HostAudio extends AbstractAudioDevice {
     this._devices = await navigator.mediaDevices.enumerateDevices();
 
     // cleanup
-    const ids = this._devices.map(d => d.deviceId);
-    [...this._audioInputMap.keys()].forEach(deviceId => {
+    const ids = this._devices.map((d) => d.deviceId);
+    [...this._audioInputMap.keys()].forEach((deviceId) => {
       if (!ids.includes(deviceId)) {
         this._audioInputMap.get(deviceId)?.disconnect();
         this._audioInputMap.delete(deviceId);
@@ -41,7 +43,7 @@ export class HostAudio extends AbstractAudioDevice {
       }
     });
 
-    [...this._audioOutputMap.keys()].forEach(deviceId => {
+    [...this._audioOutputMap.keys()].forEach((deviceId) => {
       if (!ids.includes(deviceId)) {
         this._audioOutputMap.get(deviceId)?.disconnect();
         this._audioOutputMap.delete(deviceId);
@@ -49,7 +51,7 @@ export class HostAudio extends AbstractAudioDevice {
       }
     });
 
-    this._devices.filter(f => f.kind === 'audiooutput').forEach(m => {
+    this._devices.filter((f) => f.kind === 'audiooutput').forEach((m) => {
       let node = this._audioOutputMap.get(m.deviceId);
       if (node === undefined) {
         console.debug('found new output device', m.deviceId);
@@ -61,10 +63,10 @@ export class HostAudio extends AbstractAudioDevice {
       }
     });
 
-    await Promise.all(this._devices.filter(f => f.kind === 'audioinput').map(async m => {
-      let node = this._audioInputMap.get(m.deviceId);
+    await Promise.all(this._devices.filter((f) => f.kind === 'audioinput').map(async (m) => {
+      const node = this._audioInputMap.get(m.deviceId);
       if (node === undefined) {
-        const stream = await navigator.mediaDevices.getUserMedia({audio: {deviceId: m.deviceId}});
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: { deviceId: m.deviceId } });
         const newnode = this.audioContext.createMediaStreamSource(stream);
         this._audioInputMap.set(m.deviceId, newnode);
         console.debug('found new input device', m.deviceId, newnode, this._audioInputMap.get(m.deviceId));
@@ -85,14 +87,14 @@ export class HostAudio extends AbstractAudioDevice {
   }
 
   get defaultAudioInputNode():AudioNode | undefined {
-    const m = [...this._audioOutputMap.keys()].find(deviceId => deviceId === 'default');
+    const m = [...this._audioOutputMap.keys()].find((deviceId) => deviceId === 'default');
     if (m !== undefined) {
       return this._audioOutputMap.get(m);
     }
   }
 
   get defaultAudioOutputNode():AudioNode | undefined {
-    const m = [...this._audioInputMap.keys()].find(deviceId => deviceId === 'default');
+    const m = [...this._audioInputMap.keys()].find((deviceId) => deviceId === 'default');
     if (m !== undefined) {
       return this._audioInputMap.get(m);
     }

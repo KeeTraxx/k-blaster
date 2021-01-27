@@ -1,5 +1,5 @@
 <script>
-import type { AbstractAudioDevice } from "src/lib/AbstractAudioDevice";
+    import type { AbstractAudioDevice } from "src/lib/AbstractAudioDevice";
 
     import type { MidiReceiver } from "src/lib/MidiReceiver";
 
@@ -13,7 +13,7 @@ import type { AbstractAudioDevice } from "src/lib/AbstractAudioDevice";
     export let isOutput: boolean;
     export let node: any;
     export let type: string;
-    export let device:AbstractAudioDevice;
+    export let device: AbstractAudioDevice;
 
     let element: SVGGraphicsElement;
     let port: Port;
@@ -46,11 +46,8 @@ import type { AbstractAudioDevice } from "src/lib/AbstractAudioDevice";
     function start(ev: Event) {
         startPort.set(port.connectedTo || port);
         disconnect();
-        console.log("start", ev);
         const mouseUpListener = (ev: MouseEvent) => {
-            console.log("mousup", ev);
             const el = ev.target;
-            console.log(el);
             ev.preventDefault();
 
             connect(
@@ -62,14 +59,12 @@ import type { AbstractAudioDevice } from "src/lib/AbstractAudioDevice";
         };
 
         const touchEndListener = (ev: TouchEvent) => {
-            console.log("touchup", ev);
             if (ev.changedTouches.length === 1) {
                 const touch = ev.changedTouches[0];
                 const el = document.elementFromPoint(
                     touch.clientX,
                     touch.clientY
                 );
-                console.log(el);
                 connect(
                     port,
                     [...$portMap.values()].find((p) => p.element === el)
@@ -90,18 +85,21 @@ import type { AbstractAudioDevice } from "src/lib/AbstractAudioDevice";
         const output = port.isOutput ? port : port.connectedTo;
         const input = port.isOutput ? port.connectedTo : port;
 
+        switch (output.type) {
+            case "audio":
+                output.device.disconnectAudioOutput(port.node);
+                break;
+            case "midi":
+                output.device.disconnectMidiOutput(port.node);
+                break;
+            default:
+                console.error("Unknown porttype", output.type);
+                break;
+        }
+
         output.connectedTo = undefined;
         input.connectedTo = undefined;
 
-        if (output.node instanceof AudioNode) {
-            console.log("disconnect Audionodes!");
-            output.node.disconnect(input.node);
-        } else if (output.type === "midi") {
-            output.node.removeEventListener(
-                "midimessage",
-                output.node.listener
-            );
-        }
         portMap.update((m) => m);
     }
 
@@ -127,27 +125,39 @@ import type { AbstractAudioDevice } from "src/lib/AbstractAudioDevice";
         output.connectedTo = input;
         input.connectedTo = output;
 
-        if (output.node instanceof AudioNode) {
-            console.log("connect Audionodes!");
-            output.node.connect(input.node);
-        } else if (output.type === "midi") {
-            console.log(
-                "connect Midi Nodes! But not implemented yet...",
-                output,
-                input,
-                output.node.addListener
-            );
-            const midiReceiver: MidiReceiver = input.node;
-            const midiEmitter: MIDIOutput = output.node;
-            const listener = (ev) => midiReceiver.emit("midimessage", ev);
-            midiEmitter.listener = listener;
-            midiEmitter.addEventListener("midimessage", listener);
-            midiEmitter.addEventListener("midimessage", e => console.log('inp', e))
+        switch (output.type) {
+            case "audio":
+                output.device.connectAudioOutput(
+                    port.node,
+                    input.device,
+                    input.node
+                );
+                break;
+            case "midi":
+                output.device.connectMidiOutput(
+                    port.node,
+                    input.device,
+                    input.node
+                );
+                break;
+            default:
+                console.error("Unknown porttype", output.type);
+                break;
         }
 
         portMap.update((m) => m);
     }
 </script>
+
+<g
+    transform="translate({x},{y})"
+    on:mousedown|stopPropagation={(e) => start(e)}
+    on:touchstart|stopPropagation={(e) => start(e)}
+    on:click={(e) => console.log(element.getBBox())}
+>
+    <text y="-8">{label}</text>
+    <circle r="5" bind:this={element} />
+</g>
 
 <style>
     circle {
@@ -160,13 +170,3 @@ import type { AbstractAudioDevice } from "src/lib/AbstractAudioDevice";
         font-size: 80%;
     }
 </style>
-
-<g
-    transform="translate({x},{y})"
-    on:mousedown|stopPropagation={(e) => start(e)}
-    on:touchstart|stopPropagation={(e) => start(e)}
-    on:click={(e) => console.log(element.getBBox())}
-    >
-    <text y="-8">{label}</text>
-    <circle r="5" bind:this={element} />
-</g>

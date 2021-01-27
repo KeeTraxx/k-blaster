@@ -10,15 +10,20 @@
   export let audioContext: AudioContext;
 </script>
 
-<style>
+<g transform="translate({x},{y})">
+  <text x="16" y={12}>{label}</text>
+  <GainAnalyzer y={16} height={height - 16} {gainNode} {audioContext} />
+  <VerticalSlider
+    x={20}
+    y={14}
+    height={height - 16}
+    bind:value={gainNode.gain.value}
+  />
+</g>
+
+<g>
   text {
     text-anchor: middle;
     font-family: Teko;
   }
-</style>
-
-<g transform="translate({x},{y})">
-  <text x="16" y={12}>{label}</text>
-  <GainAnalyzer y={16} height={height-16} {gainNode} {audioContext} />
-  <VerticalSlider x={20} y={14} height={height-16} bind:value={gainNode.gain.value} />
 </g>

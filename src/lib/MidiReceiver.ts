@@ -8,22 +8,24 @@ export class MidiReceiver implements Emitter<MidiReceiverEvents> {
   addEventListener<K extends 'midimessage'>(eventName: K, fn: EventReceiver<MidiReceiverEvents[K]>): void {
     this.emitter.on(eventName, fn);
   }
+
   removeEventListener<K extends 'midimessage'>(eventName: K, fn: EventReceiver<MidiReceiverEvents[K]>): void {
     this.emitter.off(eventName, fn);
   }
+
   private emitter = new Events.EventEmitter();
 
   on<K extends 'midimessage'>(eventName: K, fn: EventReceiver<MidiReceiverEvents[K]>): void {
     this.emitter.on(eventName, fn);
   }
+
   off<K extends 'midimessage'>(eventName: K, fn: EventReceiver<MidiReceiverEvents[K]>): void {
     this.emitter.off(eventName, fn);
   }
+
   emit<K extends 'midimessage'>(eventName: K, params: MidiReceiverEvents[K]): void {
     this.emitter.emit(eventName, params);
   }
-  
-  
 }
 
 type EventMap = Record<string, any>;

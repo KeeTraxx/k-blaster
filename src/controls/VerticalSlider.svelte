@@ -57,27 +57,21 @@
     }
 </script>
 
-<style>
-    line {
-        stroke: black;
-        stroke-width: 3px;
-        stroke-linecap: round;
-    }
-</style>
-
 <svelte:window
     on:mouseup|preventDefault|stopPropagation={(e) => (dragging = false)}
     on:mousemove|preventDefault|stopPropagation={(e) => dragging && mousemove(e)}
     on:touchstart|preventDefault|stopPropagation={(e) => touchStart(e)}
     on:touchmove|preventDefault|stopPropagation={(e) => touchmove(e)}
-    on:touchend|preventDefault|stopPropagation={(e) => (dragging = false)} />
+    on:touchend|preventDefault|stopPropagation={(e) => (dragging = false)}
+/>
 <g transform="translate({x},{y})">
     <g
         transform="translate(2,2)"
         on:mousewheel|preventDefault|stopPropagation={(e) => handleWheel(e)}
-        bind:this={rootEl}>
-        <rect width="15" height={height} fill="rgba(0,0,0,0)" />
-        <line x1="6" y1="16" x2="6" y2={height-20} />
+        bind:this={rootEl}
+    >
+        <rect width="15" {height} fill="rgba(0,0,0,0)" />
+        <line x1="6" y1="16" x2="6" y2={height - 20} />
         <rect
             on:mousedown|preventDefault|stopPropagation={(e) => (dragging = true)}
             on:touchstart|preventDefault|stopPropagation={(e) => (dragging = true)}
@@ -88,6 +82,15 @@
             filter="url(#filter1648)"
             stroke="#000"
             stroke-linecap="round"
-            stroke-width=".26458" />
+            stroke-width=".26458"
+        />
     </g>
 </g>
+
+<svelte:window>
+    line {
+        stroke: black;
+        stroke-width: 3px;
+        stroke-linecap: round;
+    }
+</svelte:window>

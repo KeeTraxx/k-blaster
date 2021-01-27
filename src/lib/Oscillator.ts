@@ -1,6 +1,6 @@
-import { MidiEvent, MIDI_COMMANDS, parseMidiEvent } from "../Util";
-import { AbstractAudioDevice, DeviceConfiguration } from "./AbstractAudioDevice";
-import { MidiReceiver } from "./MidiReceiver";
+import { MidiEvent, MIDI_COMMANDS, parseMidiEvent } from '../Util';
+import { AbstractAudioDevice, DeviceConfiguration } from './AbstractAudioDevice';
+import { MidiReceiver } from './MidiReceiver';
 
 export interface OscillatorConfiguration extends DeviceConfiguration {
   numFourierCoefficients:number;
@@ -11,8 +11,8 @@ const defaults:OscillatorConfiguration = {
   id: '',
   type: '',
   numFourierCoefficients: 10,
-  oscillatorType: 'sine'
-}
+  oscillatorType: 'sine',
+};
 
 interface MiniOscillator {
   oscillatorNode: OscillatorNode;
@@ -20,9 +20,10 @@ interface MiniOscillator {
 }
 
 export class Oscillator extends AbstractAudioDevice {
-
   protected numFourierCoefficients:number;
+
   public oscillatorType: OscillatorType;
+
   protected oscillatorMap:Map<number, MiniOscillator> = new Map();
 
   constructor(audioContext:AudioContext, initialConfiguration: OscillatorConfiguration) {
@@ -34,7 +35,7 @@ export class Oscillator extends AbstractAudioDevice {
 
     const config = {
       ...defaults,
-      ...initialConfiguration
+      ...initialConfiguration,
     };
 
     this.numFourierCoefficients = config.numFourierCoefficients;
@@ -46,7 +47,7 @@ export class Oscillator extends AbstractAudioDevice {
   protected midiMessage(e:WebMidi.MIDIMessageEvent) {
     const midiEvent = parseMidiEvent(e);
 
-    switch(midiEvent.command) {
+    switch (midiEvent.command) {
       case MIDI_COMMANDS.noteon:
         this.play(this.freq(midiEvent));
         break;
@@ -62,9 +63,8 @@ export class Oscillator extends AbstractAudioDevice {
   private freq(midiEvent:MidiEvent): number {
     if (midiEvent.data1) {
       return Math.pow(2, (midiEvent.data1 - 69) / 12) * 440;
-    } else {
-      throw new Error('No MIDI data1');
     }
+    throw new Error('No MIDI data1');
   }
 
   public play(freq:number = Math.pow(2, (60 - 69) / 12) * 440, velocity:number = 1) {
@@ -72,8 +72,8 @@ export class Oscillator extends AbstractAudioDevice {
 
     const o:MiniOscillator = {
       oscillatorNode: this.audioContext.createOscillator(),
-      gainNode: this.audioContext.createGain()
-    }
+      gainNode: this.audioContext.createGain(),
+    };
 
     o.gainNode.gain.value = velocity;
 
@@ -96,7 +96,7 @@ export class Oscillator extends AbstractAudioDevice {
     return {
       ...super.configuration,
       numFourierCoefficients: this.numFourierCoefficients,
-      oscillatorType: this.oscillatorType
-    }
+      oscillatorType: this.oscillatorType,
+    };
   }
 }

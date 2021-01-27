@@ -23,15 +23,6 @@
   });
 </script>
 
-<style>
-  text {
-    dominant-baseline: hanging;
-  }
-  rect {
-    cursor: pointer;
-  }
-</style>
-
 <g
   transform="translate({x}, {y + 7})"
   on:click|stopPropagation|preventDefault={(e) => dispatch(e.type, e)}
@@ -39,7 +30,7 @@
   on:touchend|stopPropagation|preventDefault={(e) => dispatch(e.type, e)}
   on:mousedown|stopPropagation|preventDefault={(e) => dispatch(e.type, e)}
   on:mouseup|stopPropagation|preventDefault={(e) => dispatch(e.type, e)}
-  >
+>
   <rect
     fill="grey"
     rx="5"
@@ -47,6 +38,16 @@
     y={textBox.y - padding}
     width={textBox.width + padding * 2}
     height={textBox.height + padding * 2}
-    filter="url(#black-glow)" />
+    filter="url(#black-glow)"
+  />
   <text bind:this={textEl}>{text}</text>
+</g>
+
+<g>
+  text {
+    dominant-baseline: hanging;
+  }
+  rect {
+    cursor: pointer;
+  }
 </g>

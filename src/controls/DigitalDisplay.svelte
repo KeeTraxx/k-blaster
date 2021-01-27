@@ -33,7 +33,7 @@
     ledBox = textEl.getBBox();
     if (ledBox.width > width) {
       select(textEl)
-        .attr('x', 0)
+        .attr("x", 0)
         .transition("scroll")
         .ease(easeLinear)
         .delay(1500)
@@ -43,18 +43,41 @@
         .duration(1500)
         .on("end", scroll);
     } else {
-      select(textEl)
-      .attr("x", (width - ledBox.width) / 2);
+      select(textEl).attr("x", (width - ledBox.width) / 2);
     }
     ledBox.width = width;
   }
 
   afterUpdate(() => {
-    select(textEl)
-    .attr('x', null);
+    select(textEl).attr("x", null);
     scroll();
   });
 </script>
+
+<g bind:this={rootEl} transform="translate({x},{y})">
+  <g transform="translate({padding},{padding + 2})">
+    <mask {id}>
+      <rect
+        x={ledBox.x - padding}
+        y={ledBox.y - padding}
+        width={ledBox.width + padding * 2}
+        height={ledBox.height + padding * 2}
+        fill="white"
+      />
+    </mask>
+    <rect
+      x={ledBox.x - padding}
+      y={ledBox.y - padding}
+      width={ledBox.width + padding * 2}
+      height={ledBox.height + padding * 2}
+      rx="4"
+      filter="url(#black-glow)"
+    />
+    <text bind:this={textEl} font-size={fontSize} mask="url(#{id})">
+      {text}
+    </text>
+  </g>
+</g>
 
 <style>
   text {
@@ -67,26 +90,3 @@
     fill: #040;
   }
 </style>
-
-<g bind:this={rootEl} transform="translate({x},{y})">
-  <g transform="translate({padding},{padding + 2})">
-    <mask {id}>
-      <rect
-        x={ledBox.x - padding}
-        y={ledBox.y - padding}
-        width={ledBox.width + padding * 2}
-        height={ledBox.height + padding * 2}
-        fill="white" />
-    </mask>
-    <rect
-      x={ledBox.x - padding}
-      y={ledBox.y - padding}
-      width={ledBox.width + padding * 2}
-      height={ledBox.height + padding * 2}
-      rx="4"
-      filter="url(#black-glow)" />
-    <text bind:this={textEl} font-size={fontSize} mask="url(#{id})">
-      {text}
-    </text>
-  </g>
-</g>

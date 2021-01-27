@@ -1,6 +1,5 @@
-import type { MidiReceiver } from "./MidiReceiver";
-
-import events, { EventEmitter } from "events";
+import events, { EventEmitter } from 'events';
+import type { MidiReceiver } from './MidiReceiver';
 
 export interface DeviceConfiguration {
   type: string;
@@ -35,16 +34,24 @@ export interface DeviceMidiPortReference {
 }
 
 export class AbstractAudioDevice<INPUT extends AudioNode = AudioNode, OUTPUT extends AudioNode = AudioNode> {
-
   protected _audioInputs:Array<INPUT> = [];
+
   protected _audioOutputs:Array<OUTPUT> = [];
+
   protected _midiInputs:Array<MidiReceiver> = [];
+
   protected _midiOutputs:Array<MidiReceiver> = [];
+
   protected _outgoingAudioConnections:Map<OUTPUT, DeviceAudioPortReference> = new Map();
+
   protected _incomingAudioConnections:Map<INPUT, DeviceAudioPortReference> = new Map();
+
   protected _outgoingMidiConnections:Map<MidiReceiver, DeviceMidiPortReference> = new Map();
+
   protected _incomingMidiConnections:Map<MidiReceiver, DeviceMidiPortReference> = new Map();
+
   protected _analyzers:Map<AudioNode, AnalyserNode> = new Map();
+
   private _id:string;
 
   constructor(protected audioContext:AudioContext, initialConfiguration:DeviceConfiguration) {
@@ -95,12 +102,12 @@ export class AbstractAudioDevice<INPUT extends AudioNode = AudioNode, OUTPUT ext
     outputNode.connect(inputNode);
     this._outgoingAudioConnections.set(outputNode, {
       device: toDevice,
-      node: inputNode
+      node: inputNode,
     });
 
     toDevice._incomingAudioConnections.set(inputNode, {
       device: this,
-      node: outputNode
+      node: outputNode,
     });
   }
 
@@ -131,13 +138,13 @@ export class AbstractAudioDevice<INPUT extends AudioNode = AudioNode, OUTPUT ext
     this._outgoingMidiConnections.set(outputNode, {
       device: toDevice,
       node: inputNode,
-      listener: listener(inputNode)
+      listener: listener(inputNode),
     });
 
     toDevice._incomingMidiConnections.set(inputNode, {
       device: this,
       node: outputNode,
-      listener
+      listener,
     });
   }
 
@@ -196,13 +203,13 @@ export class AbstractAudioDevice<INPUT extends AudioNode = AudioNode, OUTPUT ext
       outgoingAudioConnections: [...this._outgoingAudioConnections.entries()].map(([outputNode, deviceInfo]) => ({
         fromAudioPortIndex: this.audioOutputs.indexOf(outputNode),
         toDeviceId: deviceInfo.device._id,
-        toAudioPortIndex: deviceInfo.device.audioInputs.indexOf(deviceInfo.node)
+        toAudioPortIndex: deviceInfo.device.audioInputs.indexOf(deviceInfo.node),
       })),
       outgoingMidiConnections: [...this._outgoingMidiConnections.entries()].map(([outputNode, deviceInfo]) => ({
         fromMidiPortIndex: this._midiOutputs.indexOf(outputNode),
         toDeviceId: deviceInfo.device._id,
-        toMidiPortIndex: deviceInfo.device._midiInputs.indexOf(deviceInfo.node)
-      }))
-    }
+        toMidiPortIndex: deviceInfo.device._midiInputs.indexOf(deviceInfo.node),
+      })),
+    };
   }
 }
