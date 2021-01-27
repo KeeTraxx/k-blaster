@@ -1,7 +1,7 @@
 import type { DeviceConfiguration } from 'types/k-blaster';
-import { MidiEvent, MIDI_COMMANDS, parseMidiEvent } from '../Util';
+import { MidiEvent, MidiCommands, parseMidiEvent } from '../Util';
 import AbstractAudioDevice from './AbstractAudioDevice';
-import { MidiReceiver } from './MidiReceiver';
+import MidiReceiver from './MidiReceiver';
 
 export interface OscillatorConfiguration extends DeviceConfiguration {
   numFourierCoefficients:number;
@@ -49,11 +49,11 @@ export class Oscillator extends AbstractAudioDevice {
     const midiEvent = parseMidiEvent(e);
 
     switch (midiEvent.command) {
-      case MIDI_COMMANDS.noteon:
-        this.play(this.freq(midiEvent));
+      case MidiCommands.noteon:
+        this.play(Oscillator.midiEvent2Freq(midiEvent));
         break;
-      case MIDI_COMMANDS.noteoff:
-        this.stop(this.freq(midiEvent));
+      case MidiCommands.noteoff:
+        this.stop(Oscillator.midiEvent2Freq(midiEvent));
         break;
       default:
         console.error('Unknown MIDI Command', midiEvent);
@@ -61,14 +61,14 @@ export class Oscillator extends AbstractAudioDevice {
     }
   }
 
-  private freq(midiEvent:MidiEvent): number {
+  private static midiEvent2Freq(midiEvent:MidiEvent): number {
     if (midiEvent.data1) {
-      return Math.pow(2, (midiEvent.data1 - 69) / 12) * 440;
+      return (2 ** ((midiEvent.data1 - 69) / 12)) * 440;
     }
     throw new Error('No MIDI data1');
   }
 
-  public play(freq:number = Math.pow(2, (60 - 69) / 12) * 440, velocity:number = 1) {
+  public play(freq:number = (2 ** ((60 - 69) / 12)) * 440, velocity:number = 1) {
     this.stop(freq);
 
     const o:MiniOscillator = {
@@ -83,7 +83,7 @@ export class Oscillator extends AbstractAudioDevice {
     this.oscillatorMap.set(freq, o);
   }
 
-  public stop(freq:number = Math.pow(2, (60 - 69) / 12) * 440) {
+  public stop(freq:number = (2 ** ((60 - 69) / 12)) * 440) {
     const oldOscillator = this.oscillatorMap.get(freq);
     if (oldOscillator) {
       oldOscillator.oscillatorNode.stop();

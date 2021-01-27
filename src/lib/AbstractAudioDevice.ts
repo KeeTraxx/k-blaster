@@ -1,5 +1,5 @@
 import type { DeviceAudioPortReference, DeviceConfiguration, DeviceMidiPortReference } from 'types/k-blaster';
-import type { MidiReceiver } from './MidiReceiver';
+import type MidiReceiver from './MidiReceiver';
 
 export default class AbstractAudioDevice
   <INPUT extends AudioNode = AudioNode, OUTPUT extends AudioNode = AudioNode> {
@@ -107,7 +107,7 @@ export default class AbstractAudioDevice
     }
 
     // @ts-ignore
-    const listener:EventReceiver<WebMidi.MIDIMessageEvent> = (inputNode:MidiReceiver):any => (e:WebMidi.MIDIMessageEvent) => inputNode.emit('midimessage', e);
+    const listener:EventReceiver<WebMidi.MIDIMessageEvent> = (receiverNode:MidiReceiver):any => (e:WebMidi.MIDIMessageEvent) => receiverNode.emit('midimessage', e);
     this._outgoingMidiConnections.set(outputNode, {
       device: toDevice,
       node: inputNode,
@@ -157,16 +157,15 @@ export default class AbstractAudioDevice
     const analyzer = this._analyzers.get(audioNode);
     if (analyzer !== undefined) {
       return analyzer;
-    } else {
-      const analyzer = this.audioContext.createAnalyser();
-      const FFT_SIZE = 32;
-      analyzer.maxDecibels = -10;
-      analyzer.minDecibels = -40;
-      analyzer.fftSize = FFT_SIZE;
-      audioNode.connect(analyzer);
-      this._analyzers.set(audioNode, analyzer);
-      return analyzer;
     }
+    const analyzerNode = this.audioContext.createAnalyser();
+    const FFT_SIZE = 32;
+    analyzerNode.maxDecibels = -10;
+    analyzerNode.minDecibels = -40;
+    analyzerNode.fftSize = FFT_SIZE;
+    audioNode.connect(analyzerNode);
+    this._analyzers.set(audioNode, analyzerNode);
+    return analyzerNode;
   }
 
   public get configuration():DeviceConfiguration {

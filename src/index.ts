@@ -1,7 +1,7 @@
 // @ts-ignore
-import App from "./App.svelte";
+import App from './App.svelte';
 
-var app = new App({
+const app = new App({
   target: document.body,
 });
 
@@ -16,7 +16,7 @@ if (import.meta.hot) {
   });
 }
 
-//Type override for HMR so TS doesn't complain
+// Type override for HMR so TS doesn't complain
 declare global {
   interface ImportMeta {
     hot: {

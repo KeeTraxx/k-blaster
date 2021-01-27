@@ -1,9 +1,10 @@
 import Events from 'events';
+
 interface MidiReceiverEvents {
   midimessage: WebMidi.MIDIMessageEvent
 }
 
-export class MidiReceiver implements Emitter<MidiReceiverEvents> {
+export default class MidiReceiver implements Emitter<MidiReceiverEvents> {
   addEventListener<K extends 'midimessage'>(eventName: K, fn: EventReceiver<MidiReceiverEvents[K]>): void {
     this.emitter.on(eventName, fn);
   }
@@ -40,9 +41,9 @@ interface Emitter<T extends EventMap> {
   (eventName: K, fn: EventReceiver<T[K]>): void;
 
   on<K extends EventKey<T>>
-    (eventName: K, fn: EventReceiver<T[K]>): void;
+  (eventName: K, fn: EventReceiver<T[K]>): void;
   off<K extends EventKey<T>>
-    (eventName: K, fn: EventReceiver<T[K]>): void;
+  (eventName: K, fn: EventReceiver<T[K]>): void;
   emit<K extends EventKey<T>>
-    (eventName: K, params: T[K]): void;
+  (eventName: K, params: T[K]): void;
 }

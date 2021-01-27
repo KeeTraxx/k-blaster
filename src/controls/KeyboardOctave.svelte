@@ -1,6 +1,6 @@
 <script>
-  import type { MidiReceiver } from "src/lib/MidiReceiver";
-  import { MIDI_COMMANDS } from "../Util";
+  import type MidiReceiver from "src/lib/MidiReceiver";
+  import { MidiCommands } from "../Util";
 
   export let x: number = 0;
   export let y: number = 0;
@@ -11,7 +11,7 @@
   function noteon(note: number) {
     const e = {
       ...new CustomEvent<WebMidi.MIDIMessageEvent>("midimessage"),
-      data: new Uint8Array([(MIDI_COMMANDS.noteon << 4) | channel, note, 100]),
+      data: new Uint8Array([(MidiCommands.noteon << 4) | channel, note, 100]),
       receivedTime: 0,
     };
     midiReceiver.emit("midimessage", e);
@@ -20,7 +20,7 @@
   function noteoff(note: number) {
     const e = {
       ...new CustomEvent<WebMidi.MIDIMessageEvent>("midimessage"),
-      data: new Uint8Array([(MIDI_COMMANDS.noteoff << 4) | channel, note, 100]),
+      data: new Uint8Array([(MidiCommands.noteoff << 4) | channel, note, 100]),
       receivedTime: 0,
     };
     midiReceiver.emit("midimessage", e);
@@ -57,6 +57,18 @@
     [...activeTouches.values()].forEach((n) => noteoff(n));
   }
 </script>
+
+<style>
+  .white {
+    fill: white;
+    stroke: black;
+  }
+
+  .black {
+    fill: black;
+    stroke: black;
+  }
+</style>
 
 <g
   transform="translate({x},{y})"
@@ -132,16 +144,4 @@
       on:mouseleave|preventDefault|stopPropagation={() => noteoff(10 + octave * 12)}
     />
   </g>
-</g>
-
-<g>
-  .white {
-    fill: white;
-    stroke: black;
-  }
-
-  .black {
-    fill: black;
-    stroke: black;
-  }
 </g>

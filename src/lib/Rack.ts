@@ -8,7 +8,7 @@ constructorMap.set('HostAudio', HostAudio);
 constructorMap.set('Mixer', Mixer);
 constructorMap.set('Oscillator', Oscillator);
 
-export class Rack {
+export default class Rack {
   private _devices:Array<AbstractAudioDevice> = [];
 
   constructor(private audioContext:AudioContext) {

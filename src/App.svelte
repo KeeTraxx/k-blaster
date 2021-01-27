@@ -1,7 +1,7 @@
 <script lang="typescript">
   import "./TailwindCSS.svelte";
   // import Rack from "./rack-components/Rack.svelte";
-  import { Rack } from "./lib/Rack";
+  import Rack from "./lib/Rack";
   import type { Mixer } from "./lib/Mixer";
   import type { HostAudio } from "./lib/HostAudio";
   import type { Oscillator } from "./lib/Oscillator";

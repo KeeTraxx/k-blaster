@@ -1,5 +1,5 @@
-import type { DeviceConfiguration } from "types/k-blaster";
-import AbstractAudioDevice from "./AbstractAudioDevice";
+import type { DeviceConfiguration } from 'types/k-blaster';
+import AbstractAudioDevice from './AbstractAudioDevice';
 
 export interface HostAudioConfiguration extends DeviceConfiguration {
 
@@ -92,6 +92,7 @@ export class HostAudio extends AbstractAudioDevice {
     if (m !== undefined) {
       return this._audioOutputMap.get(m);
     }
+    return undefined;
   }
 
   get defaultAudioOutputNode():AudioNode | undefined {
@@ -99,6 +100,7 @@ export class HostAudio extends AbstractAudioDevice {
     if (m !== undefined) {
       return this._audioInputMap.get(m);
     }
+    return undefined;
   }
 
   get audioOutputs():Array<AudioNode> {
