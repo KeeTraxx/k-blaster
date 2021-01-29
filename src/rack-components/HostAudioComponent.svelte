@@ -1,16 +1,16 @@
 <script>
   import {group} from "d3";
-  import Port from "../controls/Port.svelte";
+  import Port from "../controls/PortComponent.svelte";
   import DigitalDisplay from "../controls/DigitalDisplay.svelte";
   import Panel from "../controls/Panel.svelte";
   import type { HostAudio } from "../lib/HostAudio";
   import { beforeUpdate } from "svelte";
   export let device:HostAudio;
   export let front:boolean;
-  let physicalDevices = group(device.devices, d => d.groupId).values();
+  let physicalDevices = group(device.audioPorts, d => d.description).values();
   beforeUpdate(() => {
-    physicalDevices = group(device.devices, d => d.groupId).values();
-  })
+    physicalDevices = group(device.audioPorts, d => d.description).values();
+  });
 </script>
 
 <Panel height={100} type="HostAudio" fill="#eee">
@@ -22,13 +22,13 @@
         <g transform="translate({100*k}, 0)">
         <DigitalDisplay fontSize="8" width={50} text={[...dev][0].label} />
         <g transform="translate(10,40)">
-          {#each [...dev.values()].filter(d => d.kind === 'audiooutput') as port, i}
-            <Port {device} x={i*20} isOutput={false} node={device.getAudioInputNodeById(port.deviceId)} type="audio" label="o" />
+          {#each [...dev.values()].filter(d => d.isOutput) as port, i}
+            <Port x={i*20} {port} label="🎤" />
           {/each}
         </g>
         <g transform="translate(10,60)">
-          {#each [...dev.values()].filter(d => d.kind === 'audioinput') as port, i}
-            <Port {device} x={i*20} isOutput={true} node={device.getAudioOutputNodeById(port.deviceId)} type="audio" label="i" />
+          {#each [...dev.values()].filter(d => !d.isOutput) as port, i}
+            <Port x={i*20} {port} label="🕪" />
           {/each}
         </g>
       </g>

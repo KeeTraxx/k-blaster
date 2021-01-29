@@ -1,4 +1,5 @@
 import type { DeviceConfiguration } from 'types/k-blaster';
+import log from '../helper/Logger';
 import { MidiEvent, MidiCommands, parseMidiEvent } from '../Util';
 import AbstractAudioDevice from './AbstractAudioDevice';
 import MidiReceiver from './MidiReceiver';
@@ -25,14 +26,16 @@ export class Oscillator extends AbstractAudioDevice {
 
   public oscillatorType: OscillatorType;
 
+  public customSinCoeffs: Float32Array = Float32Array.from([0, 1, 0, 0, 0, 0, 0, 0, 0, 0]);
+
+  public customCosCoeffs: Float32Array = Float32Array.from([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+
   protected oscillatorMap:Map<number, MiniOscillator> = new Map();
 
   constructor(audioContext:AudioContext, initialConfiguration: OscillatorConfiguration) {
     super(audioContext, initialConfiguration);
     const gainNode = audioContext.createGain();
     gainNode.gain.value = 0.2;
-    this._audioOutputs = [gainNode];
-    this._midiInputs = [new MidiReceiver()];
 
     const config = {
       ...defaults,
@@ -41,12 +44,33 @@ export class Oscillator extends AbstractAudioDevice {
 
     this.numFourierCoefficients = config.numFourierCoefficients;
     this.oscillatorType = config.oscillatorType;
+    this._audioPorts = [{
+      description: 'Oscillator Output',
+      label: 'Output',
+      device: this,
+      isOutput: true,
+      node: audioContext.createGain(),
+      type: 'audio',
+      isDefault: true,
+    }];
 
-    this._midiInputs[0].addEventListener('midimessage', this.midiMessage);
+    const node = new MidiReceiver();
+    node.addEventListener('midimessage', (e) => this.midiMessage(e));
+
+    this._midiPorts = [{
+      description: 'MIDI IN',
+      label: 'IN',
+      device: this,
+      isOutput: false,
+      node,
+      type: 'midi',
+      isDefault: true,
+    }];
   }
 
   protected midiMessage(e:WebMidi.MIDIMessageEvent) {
     const midiEvent = parseMidiEvent(e);
+    log.warn(midiEvent);
 
     switch (midiEvent.command) {
       case MidiCommands.noteon:
@@ -56,7 +80,7 @@ export class Oscillator extends AbstractAudioDevice {
         this.stop(Oscillator.midiEvent2Freq(midiEvent));
         break;
       default:
-        console.error('Unknown MIDI Command', midiEvent);
+        log.error('Unknown MIDI Command', midiEvent);
         break;
     }
   }
@@ -70,6 +94,7 @@ export class Oscillator extends AbstractAudioDevice {
 
   public play(freq:number = (2 ** ((60 - 69) / 12)) * 440, velocity:number = 1) {
     this.stop(freq);
+    log.warn('play', freq);
 
     const o:MiniOscillator = {
       oscillatorNode: this.audioContext.createOscillator(),
@@ -77,13 +102,21 @@ export class Oscillator extends AbstractAudioDevice {
     };
 
     o.gainNode.gain.value = velocity;
+    o.oscillatorNode.frequency.value = freq;
+    if (this.oscillatorType === 'custom') {
+      const wave = this.audioContext.createPeriodicWave(this.customCosCoeffs, this.customSinCoeffs);
+      o.oscillatorNode.setPeriodicWave(wave);
+    } else {
+      o.oscillatorNode.type = this.oscillatorType;
+    }
 
-    o.oscillatorNode.connect(o.gainNode).connect(this.audioOutputs[0]);
+    o.oscillatorNode.connect(o.gainNode).connect(this._audioPorts[0].node);
     o.oscillatorNode.start();
     this.oscillatorMap.set(freq, o);
   }
 
   public stop(freq:number = (2 ** ((60 - 69) / 12)) * 440) {
+    log.warn('stop', freq);
     const oldOscillator = this.oscillatorMap.get(freq);
     if (oldOscillator) {
       oldOscillator.oscillatorNode.stop();

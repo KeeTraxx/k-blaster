@@ -10,6 +10,8 @@
 
   deviceMap.set("HostAudio", { component: HostAudioComponent, heightUnits: 1 });
   deviceMap.set("HostMidi", { component: HostMidiComponent, heightUnits: 1 });
+  deviceMap.set("Mixer", { component: MixerComponent, heightUnits: 2 });
+  deviceMap.set("Oscillator", { component: OscillatorComponent, heightUnits: 2 });
 </script>
 
 <script>
@@ -23,6 +25,9 @@
   } from "../store/CableStore";
   import Cable from "./Cable.svelte";
   import { svgPos } from "../Util";
+  import log from "../helper/Logger";
+  import MixerComponent from "./MixerComponent.svelte";
+import OscillatorComponent from "./OscillatorComponent.svelte";
   export let rack: Rack;
   let front: boolean = true;
 
@@ -53,12 +58,9 @@
 
   function toggleFront(e: KeyboardEvent) {
     if (e.key === "Tab") {
-      console.log("toggline...");
       front = !front;
       e.preventDefault();
       e.stopPropagation();
-    } else {
-      console.log(e);
     }
   }
 
@@ -82,6 +84,10 @@
       window.removeEventListener("touchmove", touchMoveListener);
     }
   });
+
+  cables.subscribe(cab => {
+    // log.info('cables', cab);
+  })
 </script>
 
 <svelte:window on:keydown={toggleFront} />

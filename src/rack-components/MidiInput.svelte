@@ -4,7 +4,7 @@ import Panel from "../controls/Panel.svelte";
     import { onMount } from "svelte";
 
     import DigitalDisplay from "../controls/DigitalDisplay.svelte";
-    import Port from "../controls/Port.svelte";
+    import Port from "../controls/PortComponent.svelte";
 
     export let front: boolean;
     let midiAccess: WebMidi.MIDIAccess;

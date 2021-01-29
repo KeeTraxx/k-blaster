@@ -38,7 +38,7 @@
   </g>
 </g>
 
-<g>
+<style>
   circle {
     fill: #ccc;
   }
@@ -46,4 +46,4 @@
   circle.dot {
     fill: #aaa;
   }
-</g>
+</style>

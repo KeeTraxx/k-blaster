@@ -7,6 +7,7 @@
   import type { Oscillator } from "./lib/Oscillator";
   import RackComponent from "./rack-components/RackComponent.svelte";
   import ZoomableSvg from "./rack-components/ZoomableSvg.svelte";
+import { connect } from "./lib/PortUtil";
 
   let rack: Rack;
 
@@ -44,15 +45,23 @@
         },
       ]);
       const hostaudio = rack.getDeviceById<HostAudio>("hostaudio");
-      const mixer = rack.getDeviceById<Mixer>("mainMixer");
-      const osci = rack.getDeviceById<Oscillator>("testosci");
-      if (hostaudio.defaultAudioInputNode) {
-        mixer.connectAudioOutput(
-          mixer.audioOutputs[0],
-          hostaudio,
-          hostaudio.defaultAudioInputNode
-        );
+      const mixer = rack.getDeviceById("mainMixer");
+      const masterOut = mixer.audioPorts.find(d => d.isOutput);
+      console.warn(masterOut, hostaudio.defaultAudioPort)
+      if (masterOut && hostaudio.defaultAudioPort) {
+        
+        connect(masterOut, hostaudio.defaultAudioPort);
       }
+      
+      //const mixer = rack.getDeviceById<Mixer>("mainMixer");
+      //const osci = rack.getDeviceById<Oscillator>("testosci");
+      // if (hostaudio.defaultAudioInputNode) {
+      //   mixer.connectAudioOutput(
+      //     mixer.audioOutputs[0],
+      //     hostaudio,
+      //     hostaudio.defaultAudioInputNode
+      //   );
+      // }
 
       initDone = true;
     }

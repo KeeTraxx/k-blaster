@@ -87,10 +87,10 @@
     </g>
 </g>
 
-<svelte:window>
+<style>
     line {
         stroke: black;
         stroke-width: 3px;
         stroke-linecap: round;
     }
-</svelte:window>
+</style>

@@ -43,11 +43,11 @@
   <text bind:this={textEl}>{text}</text>
 </g>
 
-<g>
+<style>
   text {
     dominant-baseline: hanging;
   }
   rect {
     cursor: pointer;
   }
-</g>
+</style>

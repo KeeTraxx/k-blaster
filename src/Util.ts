@@ -33,14 +33,11 @@ export interface MidiEvent {
 }
 
 export function parseMidiEvent(e:WebMidi.MIDIMessageEvent):MidiEvent {
-  const command = e.data[0] >> 4;
-  const channel = (e.data[0] & 0xf) + 1;
-  let data1:number | undefined; let
-    data2:number | undefined;
-
-  if (e.data.length > 1) {
-    [data1, data2] = e.data;
-  }
+  const [data0, data1, data2] = e.data;
+  const command = data0 >> 4;
+  const channel = (data0 & 0xf) + 1;
+  // let data1:number | undefined;
+  // let data2:number | undefined;
 
   // Returned event
   return {

@@ -1,6 +1,6 @@
 <script>
     import {range} from 'd3';
-    import Port from "../controls/Port.svelte";
+    import Port from "../controls/PortComponent.svelte";
     import Panel from "../controls/Panel.svelte";
     import { MidiReceiver } from "../lib/MidiReceiver";
     import KeyboardOctave from "../controls/KeyboardOctave.svelte";

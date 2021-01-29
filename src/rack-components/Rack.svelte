@@ -14,14 +14,15 @@
         front: boolean;
     }
     import { afterUpdate, onMount, SvelteComponentDev } from "svelte/internal";
-    import Mixer from "./Mixer.svelte";
+    import Mixer from "./MixerComponent.svelte";
     import MasterOutput from "./MasterOutput.svelte";
-    import Oscillator from "./Oscillator.svelte";
+    import Oscillator from "./OscillatorComponent.svelte";
     import Shaders from "./Shaders.svelte";
     import Cable from "./Cable.svelte";
     import MidiInput from "./MidiInput.svelte";
     import MidiKeyboard from "./MidiKeyboard.svelte";
     import VirtualKeyboard from "./VirtualKeyboard.svelte";
+import log from "../helper/Logger";
     export let audioContext: AudioContext;
     export let configuration: {
         devices: Array<{ type: string }>;
@@ -110,7 +111,6 @@
 
     startPort.subscribe((port) => {
         if (port !== undefined && port.element) {
-            console.log(port.element.getBoundingClientRect());
             const { x, y } = centerPos(
                 port.element.getBoundingClientRect(),
                 $svgStore
@@ -128,16 +128,6 @@
             window.removeEventListener("touchmove", touchMoveListener);
             tempCable = undefined;
         }
-    });
-
-    let started = false;
-
-    afterUpdate(() => {
-        if (!started) {
-            // connects
-            console.log('connects', devices);
-        }
-        started = true;
     });
 </script>
 

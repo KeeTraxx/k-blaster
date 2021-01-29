@@ -1,22 +1,17 @@
 <script>
   import { scaleLinear } from "d3";
+  import type AbstractAudioDevice from "../lib/AbstractAudioDevice";
+  import type { AudioPort } from "../types";
   import { onDestroy } from "svelte";
   export let x = 0;
   export let y = 0;
   export let width = 20;
   export let height = 136;
-  export let gainNode: GainNode;
-  export let audioContext: AudioContext;
+  export let port: AudioPort<AbstractAudioDevice>;
 
   let loudness = 255;
 
-  const FFT_SIZE = 32;
-
-  const analyserNode: AnalyserNode = audioContext.createAnalyser();
-  analyserNode.maxDecibels = -10;
-  analyserNode.minDecibels = -40;
-  analyserNode.fftSize = FFT_SIZE;
-  gainNode.connect(analyserNode);
+  const analyserNode: AnalyserNode = port.device.getAnalyzer(port);
   const fftData = new Uint8Array(analyserNode.frequencyBinCount);
   requestAnimationFrame(draw);
   const scaleY = scaleLinear()
@@ -31,10 +26,6 @@
     loudness = fftData.reduce((max, c) => Math.max(c, max), 0);
     requestAnimationFrame(draw);
   }
-
-  onDestroy(() => {
-    gainNode.disconnect(analyserNode);
-  });
 </script>
 
 <defs>
