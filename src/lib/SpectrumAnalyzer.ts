@@ -34,8 +34,8 @@ export class SpectrumAnalyzer extends AbstractAudioDevice {
     this._audioPorts = [audioInput, audioOutput];
     this._analyzer = audioContext.createAnalyser();
     audioInput.node.connect(this._analyzer);
-    this._analyzer.maxDecibels = -10;
-    this._analyzer.minDecibels = -40;
+    this._analyzer.maxDecibels = -30;
+    this._analyzer.minDecibels = -80;
     this._analyzer.fftSize = 1024;
   }
 

@@ -70,10 +70,10 @@ export class Oscillator extends AbstractAudioDevice {
 
   protected midiMessage(e:WebMidi.MIDIMessageEvent) {
     const midiEvent = parseMidiEvent(e);
-
+    const velocity = midiEvent.data2 || 100;
     switch (midiEvent.command) {
       case MidiCommands.noteon:
-        this.play(Oscillator.midiEvent2Freq(midiEvent));
+        this.play(Oscillator.midiEvent2Freq(midiEvent), velocity / 128 / 20);
         break;
       case MidiCommands.noteoff:
         this.stop(Oscillator.midiEvent2Freq(midiEvent));

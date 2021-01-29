@@ -49,8 +49,8 @@ export default class AbstractAudioDevice {
     }
     const analyzerNode = this.audioContext.createAnalyser();
     const FFT_SIZE = 32;
-    analyzerNode.maxDecibels = -10;
-    analyzerNode.minDecibels = -40;
+    analyzerNode.maxDecibels = -30;
+    analyzerNode.minDecibels = -80;
     analyzerNode.fftSize = FFT_SIZE;
     audioPort.node.connect(analyzerNode);
     this._analyzers.set(audioPort.node, analyzerNode);
