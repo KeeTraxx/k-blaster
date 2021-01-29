@@ -2,7 +2,6 @@
   import { scaleLinear } from "d3";
   import type AbstractAudioDevice from "../lib/AbstractAudioDevice";
   import type { AudioPort } from "../types";
-  import { onDestroy } from "svelte";
   export let x = 0;
   export let y = 0;
   export let width = 20;

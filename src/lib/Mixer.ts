@@ -12,7 +12,6 @@ export class Mixer extends AbstractAudioDevice {
   constructor(audioContext:AudioContext, initialConfiguration: MixerConfiguration) {
     super(audioContext, initialConfiguration);
     const audioInputs:Array<AudioPort<this>> = range(initialConfiguration.numInputs).map((_, i) => ({
-      connections: new Set(),
       description: `input-${i}`,
       label: `input-${i}`,
       device: this,
@@ -22,7 +21,6 @@ export class Mixer extends AbstractAudioDevice {
       isDefault: false,
     }));
     const audioOutputs:Array<AudioPort<this>> = range(initialConfiguration.numOutputs).map((_, i) => ({
-      connections: new Set(),
       description: `output-${i}`,
       label: `output-${i}`,
       device: this,

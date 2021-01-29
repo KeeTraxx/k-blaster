@@ -7,7 +7,7 @@
   import type { Oscillator } from "./lib/Oscillator";
   import RackComponent from "./rack-components/RackComponent.svelte";
   import ZoomableSvg from "./rack-components/ZoomableSvg.svelte";
-import { connect } from "./lib/PortUtil";
+  import { connect } from "./lib/PortUtil";
 
   let rack: Rack;
 
@@ -28,8 +28,9 @@ import { connect } from "./lib/PortUtil";
       rack = new Rack(audioContext);
       await rack.loadConfig([
         { id: "hostaudio", type: "HostAudio" },
-        { id: "hostmidi", type:"HostMidi"},
+        { id: "hostmidi", type: "HostMidi" },
         { id: "mainMixer", type: "Mixer", numInputs: 8, numOutputs: 2 },
+        { id: "spectrumAnalyzer", type: "SpectrumAnalyzer" },
         {
           id: "testosci",
           type: "Oscillator",
@@ -43,25 +44,24 @@ import { connect } from "./lib/PortUtil";
             },
           ],
         },
+        {
+          id: "virtualkeyboard",
+          type: "VirtualKeyboard",
+          outgoingMidiConnections: [
+            {
+              toDeviceId: "testosci",
+              fromMidiPortIndex: 1,
+              toMidiPortIndex: 0,
+            },
+          ],
+        },
       ]);
       const hostaudio = rack.getDeviceById<HostAudio>("hostaudio");
       const mixer = rack.getDeviceById("mainMixer");
-      const masterOut = mixer.audioPorts.find(d => d.isOutput);
-      console.warn(masterOut, hostaudio.defaultAudioPort)
+      const masterOut = mixer.audioPorts.find((d) => d.isOutput);
       if (masterOut && hostaudio.defaultAudioPort) {
-        
         connect(masterOut, hostaudio.defaultAudioPort);
       }
-      
-      //const mixer = rack.getDeviceById<Mixer>("mainMixer");
-      //const osci = rack.getDeviceById<Oscillator>("testosci");
-      // if (hostaudio.defaultAudioInputNode) {
-      //   mixer.connectAudioOutput(
-      //     mixer.audioOutputs[0],
-      //     hostaudio,
-      //     hostaudio.defaultAudioInputNode
-      //   );
-      // }
 
       initDone = true;
     }
@@ -69,6 +69,13 @@ import { connect } from "./lib/PortUtil";
 </script>
 
 {#if audioContext && initDone}
+  <aside>
+    <h1>HELP</h1>
+    <dl>
+      <dt>[tab]</dt>
+      <dd>switch to back panel</dd>
+    </dl>
+  </aside>
   {#if initDone}
     <ZoomableSvg>
       <RackComponent {rack} />
@@ -79,3 +86,24 @@ import { connect } from "./lib/PortUtil";
 {:else}
   <p>Press / Click any key to start</p>
 {/if}
+
+<style>
+  aside {
+    position: fixed;
+    top: 1em;
+    right: 1em;
+    padding: 0.5em;
+    border-radius: 0.5em;
+    opacity: 0.7;
+    background: rgba(0, 0, 0, 0.3);
+  }
+  dt,
+  dd {
+    display: inline-block;
+    margin: 0.1em 0.5em;
+  }
+
+  dt {
+    text-align: right;
+  }
+</style>

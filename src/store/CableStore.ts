@@ -13,9 +13,14 @@ export const midiPortElements = writable<Map<SVGGraphicsElement, MidiPort>>(new 
 // @ts-ignore
 export const svgStore = writable<SVGSVGElement>(document.createElement('svg') as SVGSVGElement);
 export const transform = writable<{x:number, y:number, k: number}>({ x: 0, y: 0, k: 1 });
+export const delayedTransform = writable<{x:number, y:number, k: number}>({ x: 0, y: 0, k: 1 });
+transform.subscribe((t) => {
+  setTimeout(() => delayedTransform.set(t), 5);
+});
+
 export const clientPos = writable<{x:number, y:number}>({ x: 0, y: 0 });
 
-export const cables = derived([portMap, svgStore, transform], ([$portMap, $svgStore, $transform]) => {
+export const cables = derived([portMap, svgStore, delayedTransform], ([$portMap, $svgStore, $transform]) => {
   if ($svgStore) {
     return [...$portMap.values()]
       .filter((p) => p.isOutput)

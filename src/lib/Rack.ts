@@ -5,18 +5,23 @@ import { HostMidi, HostMidiConfiguration } from './HostMidi';
 import { Mixer, MixerConfiguration } from './Mixer';
 import { Oscillator, OscillatorConfiguration } from './Oscillator';
 import { connect } from './PortUtil';
+import { SpectrumAnalyzer } from './SpectrumAnalyzer';
+import { VirtualKeyboard, VirtualKeyboardConfiguration } from './VirtualKeyboard';
 
 const constructorMap:Map<string, Object> = new Map();
 constructorMap.set('HostAudio', HostAudio);
 constructorMap.set('Mixer', Mixer);
 constructorMap.set('Oscillator', Oscillator);
 constructorMap.set('HostMidi', HostMidi);
+constructorMap.set('VirtualKeyboard', VirtualKeyboard);
+constructorMap.set('SpectrumAnalyzer', SpectrumAnalyzer);
 
 type AllConfigurations =
  | HostAudioConfiguration
  | MixerConfiguration
  | OscillatorConfiguration
- | HostMidiConfiguration;
+ | HostMidiConfiguration
+ | VirtualKeyboardConfiguration;
 
 export default class Rack {
   private _devices:Array<AbstractAudioDevice> = [];
@@ -48,9 +53,9 @@ export default class Rack {
 
       deviceConfiguration.outgoingMidiConnections?.forEach((conn) => {
         const fromDevice = this.getDeviceById(deviceConfiguration.id);
-        const toDevice = this.getDeviceById(deviceConfiguration.id);
+        const toDevice = this.getDeviceById(conn.toDeviceId);
         log.debug('making midi connections', fromDevice, conn.fromMidiPortIndex, toDevice, conn.toMidiPortIndex);
-        connect(fromDevice.audioPorts[conn.fromMidiPortIndex], toDevice.audioPorts[conn.toMidiPortIndex]);
+        connect(fromDevice.midiPorts[conn.fromMidiPortIndex], toDevice.midiPorts[conn.toMidiPortIndex]);
       });
     });
   }

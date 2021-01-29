@@ -18,19 +18,16 @@ export class HostMidi extends AbstractAudioDevice {
   }
 
   private updatePorts(): void {
-    log.warn('update ports.');
     const ports:Array<MidiPort<this>> = [];
     if (this._midiAccess?.inputs) {
       ports.push(...[...this._midiAccess.inputs.values()].map((d) => {
         log.debug('Found MIDI INPUT device', d);
         const node = new MidiReceiver();
         d.addEventListener('midimessage', (e) => node.emit('midimessage', e));
-        // node.addEventListener('midimessage', (e) => console.log('from node', e));
-        // d.addEventListener('midimessage', (e) => console.warn(d, e));
 
         const port:MidiPort<this> = {
           // label: d.name || 'n/a',
-          label: `SUPER ${d.name}`,
+          label: `${d.name}`,
           description: d.manufacturer || 'n/a',
           device: this,
           node,

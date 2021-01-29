@@ -72,7 +72,7 @@
 
 <g
   transform="translate({x},{y})"
-  on:touchend|preventDefault={() => touchend()}
+  on:touchend|preventDefault|stopPropagation={() => touchend()}
   on:touchmove|preventDefault|stopPropagation={(e) => touchmove(e)}
   on:touchstart|preventDefault|stopPropagation={(e) => touchmove(e)}
 >

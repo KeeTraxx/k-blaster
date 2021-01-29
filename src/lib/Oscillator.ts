@@ -26,9 +26,9 @@ export class Oscillator extends AbstractAudioDevice {
 
   public oscillatorType: OscillatorType;
 
-  public customSinCoeffs: Float32Array = Float32Array.from([0, 1, 0, 0, 0, 0, 0, 0, 0, 0]);
-
   public customCosCoeffs: Float32Array = Float32Array.from([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+
+  public customSinCoeffs: Float32Array = Float32Array.from([0, 1, 0, 0.33, 0, 0.25, 0, 0.14, 0, 0.11]);
 
   protected oscillatorMap:Map<number, MiniOscillator> = new Map();
 
@@ -70,7 +70,6 @@ export class Oscillator extends AbstractAudioDevice {
 
   protected midiMessage(e:WebMidi.MIDIMessageEvent) {
     const midiEvent = parseMidiEvent(e);
-    log.warn(midiEvent);
 
     switch (midiEvent.command) {
       case MidiCommands.noteon:
@@ -94,7 +93,6 @@ export class Oscillator extends AbstractAudioDevice {
 
   public play(freq:number = (2 ** ((60 - 69) / 12)) * 440, velocity:number = 1) {
     this.stop(freq);
-    log.warn('play', freq);
 
     const o:MiniOscillator = {
       oscillatorNode: this.audioContext.createOscillator(),
@@ -116,7 +114,6 @@ export class Oscillator extends AbstractAudioDevice {
   }
 
   public stop(freq:number = (2 ** ((60 - 69) / 12)) * 440) {
-    log.warn('stop', freq);
     const oldOscillator = this.oscillatorMap.get(freq);
     if (oldOscillator) {
       oldOscillator.oscillatorNode.stop();

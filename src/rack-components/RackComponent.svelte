@@ -11,7 +11,26 @@
   deviceMap.set("HostAudio", { component: HostAudioComponent, heightUnits: 1 });
   deviceMap.set("HostMidi", { component: HostMidiComponent, heightUnits: 1 });
   deviceMap.set("Mixer", { component: MixerComponent, heightUnits: 2 });
-  deviceMap.set("Oscillator", { component: OscillatorComponent, heightUnits: 2 });
+  deviceMap.set("Oscillator", {
+    component: OscillatorComponent,
+    heightUnits: 1,
+  });
+  deviceMap.set("VirtualKeyboard", {
+    component: VirtualKeyboardComponent,
+    heightUnits: 2,
+  });
+
+  deviceMap.set("SpectrumAnalyzer", {
+    component: SpectrumAnalyzerComponent,
+    heightUnits: 2,
+  });
+  
+interface RackElement {
+  type: string;
+  svelte: typeof SvelteComponentDev | undefined;
+  y: number;
+  device?: AbstractAudioDevice;
+}
 </script>
 
 <script>
@@ -24,37 +43,40 @@
     clientPos,
   } from "../store/CableStore";
   import Cable from "./Cable.svelte";
-  import { svgPos } from "../Util";
-  import log from "../helper/Logger";
   import MixerComponent from "./MixerComponent.svelte";
-import OscillatorComponent from "./OscillatorComponent.svelte";
+  import OscillatorComponent from "./OscillatorComponent.svelte";
+  import VirtualKeyboardComponent from "./VirtualKeyboardComponent.svelte";
+import type AbstractAudioDevice from "src/lib/AbstractAudioDevice";
+import SpectrumAnalyzerComponent from "./SpectrumAnalyzerComponent.svelte";
   export let rack: Rack;
   let front: boolean = true;
 
   let y = 0;
-
-  let svelteComponents = rack.devices.map((device) => {
-    const type = device.constructor.name;
-    const componentInfo = deviceMap.get(type);
-    if (componentInfo) {
-      const dat = {
-        type,
-        svelte: componentInfo.component,
-        device,
-        y,
-      };
-      y += componentInfo.heightUnits * 100;
-      return dat;
-    } else {
-      const dat = {
-        type,
-        svelte: undefined,
-        y,
-      };
-      y += 200;
-      return dat;
-    }
-  });
+  let svelteComponents: Array<RackElement>;
+  $: {
+    svelteComponents = rack.devices.map((device) => {
+      const type = device.constructor.name;
+      const componentInfo = deviceMap.get(type);
+      if (componentInfo) {
+        const dat = {
+          type,
+          svelte: componentInfo.component,
+          device,
+          y,
+        };
+        y += componentInfo.heightUnits * 100;
+        return dat;
+      } else {
+        const dat = {
+          type,
+          svelte: undefined,
+          y,
+        };
+        y += 200;
+        return dat;
+      }
+    });
+  }
 
   function toggleFront(e: KeyboardEvent) {
     if (e.key === "Tab") {
@@ -84,10 +106,6 @@ import OscillatorComponent from "./OscillatorComponent.svelte";
       window.removeEventListener("touchmove", touchMoveListener);
     }
   });
-
-  cables.subscribe(cab => {
-    // log.info('cables', cab);
-  })
 </script>
 
 <svelte:window on:keydown={toggleFront} />
