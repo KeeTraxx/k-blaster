@@ -37,7 +37,7 @@
           outgoingAudioConnections: [
             {
               toDeviceId: "spectrumAnalyzer",
-              fromAudioPortIndex: 0,
+              fromAudioPortIndex: 8,
               toAudioPortIndex: 0,
             },
           ],
@@ -72,9 +72,9 @@
       const mixer = rack.getDeviceById("mainMixer");
       const spectrumAnalyzer = rack.getDeviceById("spectrumAnalyzer");
       const masterOut = mixer.audioPorts.find((d) => d.isOutput);
-      if (masterOut && spectrumAnalyzer.audioPorts[0]) {
+      /*if (masterOut && spectrumAnalyzer.audioPorts[0]) {
         connect(masterOut, spectrumAnalyzer.audioPorts[0]);
-      }
+      }*/
       if (spectrumAnalyzer.audioPorts[1] && hostaudio.defaultAudioPort) {
         connect(spectrumAnalyzer.audioPorts[1], hostaudio.defaultAudioPort);
       }
