@@ -29,7 +29,19 @@
       await rack.loadConfig([
         { id: "hostaudio", type: "HostAudio" },
         { id: "hostmidi", type: "HostMidi" },
-        { id: "mainMixer", type: "Mixer", numInputs: 8, numOutputs: 2 },
+        {
+          id: "mainMixer",
+          type: "Mixer",
+          numInputs: 8,
+          numOutputs: 2,
+          outgoingAudioConnections: [
+            {
+              toDeviceId: "spectrumAnalyzer",
+              fromAudioPortIndex: 0,
+              toAudioPortIndex: 0,
+            },
+          ],
+        },
         { id: "spectrumAnalyzer", type: "SpectrumAnalyzer" },
         {
           id: "testosci",
@@ -58,9 +70,13 @@
       ]);
       const hostaudio = rack.getDeviceById<HostAudio>("hostaudio");
       const mixer = rack.getDeviceById("mainMixer");
+      const spectrumAnalyzer = rack.getDeviceById("spectrumAnalyzer");
       const masterOut = mixer.audioPorts.find((d) => d.isOutput);
-      if (masterOut && hostaudio.defaultAudioPort) {
-        connect(masterOut, hostaudio.defaultAudioPort);
+      if (masterOut && spectrumAnalyzer.audioPorts[0]) {
+        connect(masterOut, spectrumAnalyzer.audioPorts[0]);
+      }
+      if (spectrumAnalyzer.audioPorts[1] && hostaudio.defaultAudioPort) {
+        connect(spectrumAnalyzer.audioPorts[1], hostaudio.defaultAudioPort);
       }
 
       initDone = true;

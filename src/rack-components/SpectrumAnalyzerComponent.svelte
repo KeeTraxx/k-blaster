@@ -9,7 +9,7 @@
 
 <Panel height={200} type="SpectrumAnalyzer" fill="#eee">
   {#if front}
-    <SpectrumDisplay analyzerNode={device.analyzer} />
+    <SpectrumDisplay analyzerNode={device.analyzer} sampleRate={device.audioContext.sampleRate} />
   {:else}
     <g transform="translate(5, 10)">
       {#each device.audioPorts as port, i}

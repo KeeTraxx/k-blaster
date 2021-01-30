@@ -11,7 +11,7 @@ export default class AbstractAudioDevice {
 
   private _id:string;
 
-  constructor(protected audioContext:AudioContext, initialConfiguration:DeviceConfiguration) {
+  constructor(public audioContext:AudioContext, initialConfiguration:DeviceConfiguration) {
     log.debug('Instanciating', this.constructor.name, initialConfiguration);
     this._id = initialConfiguration.id;
   }
