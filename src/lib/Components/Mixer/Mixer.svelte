@@ -1,8 +1,12 @@
 <script lang="ts">
-    import { cableport } from "../../Helper/port";
+    import { audioContext } from "../../../stores";
+    import { audioIn, audioOut } from "../../Helper/port";
     import { View } from "../types.d";
 
     export let view : View;
+
+    let audioOutNode = $audioContext.createGain();
+    let audioInNode = $audioContext.createGain();
 </script>
 
 {#if view == View.FRONT}
@@ -13,6 +17,8 @@
 
 {#if view == View.BACK}
 <svg>
-    <text x=100 y=100 use:cableport>Mixer back</text>
+    <text x=100 y=100>Mixer back</text>
+    <circle cx=50 cy=50 r=10 use:audioOut={audioOutNode}></circle>
+    <circle cx=100 cy=50 r=10 use:audioIn={audioInNode}></circle>
 </svg>      
 {/if}
