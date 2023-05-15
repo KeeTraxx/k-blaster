@@ -6,10 +6,8 @@
 
     export let component;
     export let props = {};
-    console.log(components);
 
     const c = components[component];
-    console.log(c);
 </script>
 
 {#if c}

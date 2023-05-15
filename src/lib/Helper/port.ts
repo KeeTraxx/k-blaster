@@ -1,5 +1,5 @@
 import { get, writable } from "svelte/store";
-import { audioOutPorts, audioInPorts, connections, Port } from "../../stores";
+import { audioOutPorts, audioInPorts, connections, Port, PortParams } from "../../stores";
 
 export const node1 = writable<Element | undefined>();
 export const node2 = writable<Element | undefined>();
@@ -14,7 +14,7 @@ const mouseDown = ev => {
     node1.set(node);
 }
 
-const disconnect = (el:Element) => {
+const disconnect = (el: Element) => {
     let connection = [...get(connections).entries()].find(d => d[0].element === el || d[1].element === el);
 
     if (!connection) {
@@ -37,7 +37,7 @@ const disconnect = (el:Element) => {
     }
 }
 
-const mouseUp = (ev:Event) => {
+const mouseUp = (ev: Event) => {
     ev.stopPropagation();
     node2.set(ev.target as Element);
 
@@ -45,19 +45,24 @@ const mouseUp = (ev:Event) => {
     let to = [...audioInPorts].find(d => d.element === get(node1) || d.element === get(node2));
 
     if (from !== undefined && to !== undefined) {
-        console.log('connecting', node1, from, node2, to);
-        from.audioNode.connect(to.audioNode);
-        connections.update(m => m.set(from as Port, to as Port))
+
+        connect(from, to);
     }
 
     node1.set(undefined);
     node2.set(undefined);
 }
 
-export function audioOut(element: Element, audioNode: AudioNode) {
+export function connect(fromPort: Port, toPort: Port) {
+    console.log('connecting', node1, fromPort, node2, toPort);
+    fromPort.audioNode.connect(toPort.audioNode);
+    connections.update(m => m.set(fromPort, toPort));
+}
+
+export function audioOut(element: Element, portParams: PortParams) {
     audioOutPorts.add({
-        element, 
-        audioNode
+        ...portParams,
+        element,
     });
 
     element.addEventListener('mousedown', mouseDown);
@@ -71,12 +76,12 @@ export function audioOut(element: Element, audioNode: AudioNode) {
     }
 }
 
-export function audioIn(element: Element, audioNode: AudioNode) {
+export function audioIn(element: Element, portParams: PortParams) {
     audioInPorts.add({
-        element, 
-        audioNode
+        ...portParams,
+        element,
     });
-    
+
     element.addEventListener('mousedown', mouseDown);
     element.addEventListener('mouseup', mouseUp);
 

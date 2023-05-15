@@ -1,9 +1,8 @@
 <script lang="ts">
     import { derived } from "svelte/store";
-    import { connections } from "../../stores";
+    import { connections, view } from "../../stores";
     import { View } from "../Components/types.d";
     import { node1 } from "./port";
-    export let view: View;
 
     let mouseEvent: MouseEvent = undefined;
 
@@ -15,12 +14,13 @@
         };
     }
 
-    const cables = derived(connections, (c) =>
-        [...c.entries()].map((p) => [
+    const cables = derived([connections, view], ([c, view]) => {
+        console.log("up");
+        return [...c.entries()].map((p) => [
             center(p[0].element),
             center(p[1].element),
-        ])
-    );
+        ]);
+    });
     const floating = derived(node1, (el) => (el ? center(el) : undefined));
     function mousemove(el: Element) {
         const move = (ev) => (mouseEvent = ev);
@@ -44,7 +44,7 @@
 
 <svelte:window on:mousedown={(ev) => down(ev)} />
 
-{#if view === View.BACK}
+{#if $view === View.BACK}
     <svg>
         <text x="10" y="10">CABLES</text>
         {#each $cables as conn}
@@ -65,6 +65,8 @@
 <style>
     svg {
         pointer-events: none;
+        width: 100vw;
+        height: 100vh;
     }
 
     line {
