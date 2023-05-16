@@ -1,12 +1,15 @@
 <script lang="ts">
     import { derived } from "svelte/store";
-    import { connections, view } from "../../stores";
+    import { connections, view, visualPorts } from "../../stores";
     import { View } from "../Components/types.d";
     import { node1 } from "./port";
 
     let mouseEvent: MouseEvent = undefined;
 
     function center(el: Element): { x: number; y: number } {
+        if (!el) {
+            return undefined;
+        }
         const rect = el.getBoundingClientRect();
         return {
             x: rect.x + rect.width / 2,
@@ -14,14 +17,13 @@
         };
     }
 
-    const cables = derived([connections, view], ([c, view]) => {
-        console.log("up");
-        return [...c.entries()].map((p) => [
-            center(p[0].element),
-            center(p[1].element),
-        ]);
+    const cables = derived([connections, visualPorts], ([connections, visualPorts]) => {
+        return [...connections.entries()].map((c) => [
+            center($visualPorts.get(c[0])?.element),
+            center($visualPorts.get(c[1])?.element),
+        ]).filter(Boolean);
     });
-    const floating = derived(node1, (el) => (el ? center(el) : undefined));
+    const floating = derived(node1, ($node1) => ($node1 ? center($node1.element) : undefined));
     function mousemove(el: Element) {
         const move = (ev) => (mouseEvent = ev);
         const up = (ev) => node1.set(undefined);
@@ -46,7 +48,6 @@
 
 {#if $view === View.BACK}
     <svg>
-        <text x="10" y="10">CABLES</text>
         {#each $cables as conn}
             <line x1={conn[0].x} y1={conn[0].y} x2={conn[1].x} y2={conn[1].y} />
         {/each}

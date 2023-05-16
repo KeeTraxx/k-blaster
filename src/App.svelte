@@ -1,11 +1,16 @@
 <script lang="ts">
-    import Component from "./lib/Components/Component.svelte";
     import { View } from "./lib/Components/types.d";
     import Cables from "./lib/Helper/Cables.svelte";
-    import { audioContext, audioInPorts, audioOutPorts, view } from "./stores";
-    import { TWO_MIXERS } from "./lib/presets";
-    import { onMount } from "svelte";
-    import { connect } from "./lib/Helper/port";
+    import { audioContext, view } from "./stores";
+    import type { Component } from "./lib/Components/Component";
+    import { Mixer } from "./lib/Components/Mixer/Mixer";
+    import MixerSvelte from "./lib/Components/Mixer/Mixer.svelte";
+
+    let components: Array<Component>;
+    
+    const svelteComponents = {
+        "Mixer": MixerSvelte
+    }
 
     function k(event: KeyboardEvent) {
         if (event.key === "Tab") {
@@ -14,36 +19,11 @@
         }
     }
 
-    audioContext.subscribe(() => {
-        setTimeout(() => {
-            TWO_MIXERS.forEach((component) => {
-                let outports = [...audioOutPorts.values()];
-                let inports = [...audioInPorts.values()];
-                console.log(outports, inports);
-                component.connections.forEach((connection) => {
-                    const p1 = outports.find(
-                        (p) =>
-                            p.componentId === component.id &&
-                            p.name === connection.fromPort
-                    );
-                    if (!p1) {
-                        console.warn("Could not find port", connection);
-                        return;
-                    }
-                    const p2 = inports.find(
-                        (p) =>
-                            p.componentId === connection.toComponentId &&
-                            p.name === connection.toPort
-                    );
-                    if (!p2) {
-                        console.warn("Could not find port", connection);
-                        return;
-                    }
-                    connect(p1, p2);
-                });
-            });
-        }, 200);
-    })
+    audioContext.subscribe(ctx => {
+        if(ctx) {
+            components = [new Mixer(ctx, "mixer-0")]
+        }
+    });
 </script>
 
 <svelte:window on:keydown={k} />
@@ -51,12 +31,12 @@
 {#if $audioContext}
     <div class="layers">
         <main>
-            {#each TWO_MIXERS as c}
-                <Component component={c.component} props={{ id: c.id }} />
+            {#each components as c}
+                <svelte:component this={svelteComponents[c.type]} config={c} />
             {/each}
         </main>
         <aside>
-            <Cables {view} />
+            <Cables />
         </aside>
     </div>
 {:else}

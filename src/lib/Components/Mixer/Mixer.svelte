@@ -1,24 +1,25 @@
 <script lang="ts">
-    import { audioContext, view } from "../../../stores";
-    import { audioIn, audioOut } from "../../Helper/port";
+    import { view } from "../../../stores";
+    import { port } from "../../Helper/port";
     import { View } from "../types.d";
+    import type { Mixer } from "./Mixer";
 
-    export let id: string;
-
-    let audioOutNode = $audioContext.createGain();
-    let audioInNode = $audioContext.createGain();
+    export let config : Mixer;
 </script>
 
-<svg style="display: {$view == View.FRONT ? 'inherit': 'none'}">
+{#if $view == View.FRONT}
+<svg>
     <text x=100 y=100>Mixer</text>
-</svg>      
+</svg>          
+{/if}
 
-<svg style="display: {$view == View.BACK ? 'inherit': 'none'}">
+{#if $view == View.BACK}
+<svg>
     <text x=100 y=100>Mixer back</text>
-    <circle cx=50 cy=50 r=10 use:audioOut={{componentId: id, name: 'out-0', audioNode: audioOutNode}}></circle>
-    <circle cx=100 cy=50 r=10 use:audioIn={{componentId: id, name: 'in-0', audioNode: audioInNode}}></circle>
+    <circle cx=100 cy=100 r=5 use:port={config.getPort("out-0")} />
+    <circle cx=150 cy=100 r=5 use:port={config.getPort("in-0")} />
 </svg>      
-
+{/if}
 <style>
     svg {
         flex: 0 0 250px;
