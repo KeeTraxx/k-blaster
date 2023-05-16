@@ -58,8 +58,7 @@
 
     main,
     aside {
-        margin: 0;
-        padding: 0;
+        inset: 0;
     }
 
     aside {

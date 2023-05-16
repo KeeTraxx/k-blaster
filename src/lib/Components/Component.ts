@@ -1,4 +1,3 @@
-import type { SvelteComponentDev } from "svelte/internal";
 import type { Port } from "./types";
 
 export abstract class Component {
