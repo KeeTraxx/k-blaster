@@ -1,6 +1,6 @@
 import Immutable from "immutable";
 import { Component } from "../Component";
-import { PortType, type Port, PortDirection } from "../types.d";
+import { type Port, PortDirection } from "../types.d";
 
 export class Mixer extends Component {
     public readonly type: string = "Mixer";
@@ -23,6 +23,6 @@ export class Mixer extends Component {
 
         const out0 = this.getPort("out-0");
 
-        this.ports.forEach(p => p.audioNode.connect(out0.audioNode));
+        this.ports.filter(p => p.direction === PortDirection.IN).forEach(p => p.audioNode.connect(out0.audioNode));
     }
 }

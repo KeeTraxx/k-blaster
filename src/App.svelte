@@ -21,7 +21,15 @@
 
     audioContext.subscribe(ctx => {
         if(ctx) {
-            components = [new Mixer(ctx, "mixer-0")]
+            components = [
+                new Mixer(ctx, "mixer-0"),
+                new Mixer(ctx, "mixer-1"),
+                new Mixer(ctx, "mixer-2"),
+                new Mixer(ctx, "mixer-3"),  
+                new Mixer(ctx, "mixer-4"),
+                new Mixer(ctx, "mixer-5"),
+                new Mixer(ctx, "mixer-6"),  
+            ]
         }
     });
 </script>
@@ -54,6 +62,7 @@
 
     :global(text) {
         user-select: none;
+        pointer-events: none;
     }
 
     main,

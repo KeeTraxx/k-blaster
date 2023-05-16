@@ -1,10 +1,10 @@
 <script lang="ts">
     import { view } from "../../../stores";
     import Port from "../../Helper/Port.svelte";
-    import { PortDirection, View } from "../types.d";
-    import type { Mixer } from "./Mixer";
+    import { PortDirection, View } from "../types";
+    import type { Oscillator } from "./Oscillator";
 
-    export let config: Mixer;
+    export let config: Oscillator;
 </script>
 
 {#if $view == View.FRONT}
@@ -17,13 +17,7 @@
 {#if $view == View.BACK}
     <svg viewBox="0 0 960 250" preserveAspectRatio="xMidYMid meet">
         <rect width="960" height="250" fill="grey" />
-        <text x="0" y="20">Mixer back</text>
-        <g transform="translate(50,50)">
-            {#each [...config.ports].filter(d => d.direction === PortDirection.IN) as p, i}
-                <Port x={50 * i} y="20" {p} />
-            {/each}
-        </g>
-
+        <text x="0" y="20">Oscillator back</text>
         <Port x="100" y="100" p={config.getPort("out-0")}/>
     </svg>
 {/if}

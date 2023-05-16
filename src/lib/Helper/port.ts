@@ -36,6 +36,8 @@ const mouseUp = (ev: Event, port: Port) => {
     ev.stopPropagation();
     try {
         connect(get(node1).port, port);
+    } catch(err) {
+        console.warn(err);
     } finally {
         node1.set(undefined);
     }
@@ -69,9 +71,11 @@ export function connect(fromPort: Port, toPort: Port) {
         throw new Error("No IN Port");
     }
 
-    if ([get(connections).values()].some(d => [...d].includes(inPort) || [...d].includes(outPort))) {
+    if ([...get(connections).entries()].some(d => d.includes(inPort) || [...d].includes(outPort))) {
         throw new Error("A port already connected");
     }
+
+    console.log('CONNECTING', outPort, inPort)
 
     outPort.audioNode.connect(inPort.audioNode);
 

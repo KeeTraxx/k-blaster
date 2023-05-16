@@ -1,10 +1,21 @@
 <script lang="ts">
-    import { derived } from "svelte/store";
+    import { derived, writable } from "svelte/store";
     import { connections, view, visualPorts } from "../../stores";
     import { View } from "../Components/types.d";
     import { node1 } from "./port";
+    import {
+        line,
+        curveBasis,
+        range,
+        forceSimulation,
+        pairs,
+        forceCollide,
+        forceLink,
+        forceY,
+    } from "d3";
 
     let mouseEvent: MouseEvent = undefined;
+    let resized = writable();
 
     function center(el: Element): { x: number; y: number } {
         if (!el) {
@@ -17,13 +28,28 @@
         };
     }
 
-    const cables = derived([connections, visualPorts], ([connections, visualPorts]) => {
-        return [...connections.entries()].map((c) => [
-            center($visualPorts.get(c[0])?.element),
-            center($visualPorts.get(c[1])?.element),
-        ]).filter(Boolean);
-    });
-    const floating = derived(node1, ($node1) => ($node1 ? center($node1.element) : undefined));
+    const pathDrawer = line<Position>()
+        .x((d) => d.x || 0)
+        .y((d) => d.y || 0)
+        .curve(curveBasis);
+
+    const cables = derived(
+        [connections, visualPorts, resized],
+        ([connections, visualPorts]) => {
+            return [...connections.entries()]
+                .map(
+                    (c) =>
+                        [
+                            center($visualPorts.get(c[0])?.element),
+                            center($visualPorts.get(c[1])?.element),
+                        ] as [Position, Position]
+                )
+                .filter(Boolean);
+        }
+    );
+    const floating = derived(node1, ($node1) =>
+        $node1 ? center($node1.element) : undefined
+    );
     function mousemove(el: Element) {
         const move = (ev) => (mouseEvent = ev);
         const up = (ev) => node1.set(undefined);
@@ -39,26 +65,73 @@
         };
     }
 
+    function cablePhysics(
+        el: SVGPathElement,
+        [from, to]: [Position, Position]
+    ) {
+        console.log(el, from, to);
+        const CABLE_PARTS = 5;
+        let distance = () =>
+            Math.sqrt(Math.pow(to.x - from.x, 2) + Math.pow(to.y - from.y, 2));
+        const cableNodes: Array<any> = range(CABLE_PARTS).map(() => ({}));
+        cableNodes[0].fx = from.x;
+        cableNodes[0].fy = from.y;
+
+        cableNodes[cableNodes.length - 1].fx = to.x;
+        cableNodes[cableNodes.length - 1].fy = to.y;
+        const sim = forceSimulation(cableNodes)
+            .force("gravity", forceY(2000).strength(0.005))
+            .force(
+                "link",
+                forceLink()
+                    .links(
+                        pairs(cableNodes).map(([source, target]) => ({
+                            source,
+                            target,
+                        }))
+                    )
+                    .distance(distance() / CABLE_PARTS)
+                    .strength(0.9)
+            )
+            .force("collide", forceCollide(20));
+        sim.on("tick", () => el.setAttribute("d", pathDrawer(cableNodes)));
+        return {
+            update: ([newFrom, newTo]) => {
+                cableNodes[0].fx = newFrom.x;
+                cableNodes[0].fy = newFrom.y;
+
+                cableNodes[cableNodes.length - 1].fx = newTo.x;
+                cableNodes[cableNodes.length - 1].fy = newTo.y;
+
+                sim.alpha(1);
+                sim.restart();
+            },
+            destroy: () => {},
+        };
+    }
+
     function down(ev: MouseEvent) {
         mouseEvent = ev;
     }
+
+    interface Position {
+        x: number;
+        y: number;
+    }
 </script>
 
-<svelte:window on:mousedown={(ev) => down(ev)} />
+<svelte:window
+    on:mousedown={(ev) => down(ev)}
+    on:resize={(ev) => resized.set(ev)}
+/>
 
 {#if $view === View.BACK}
     <svg>
-        {#each $cables as conn}
-            <line x1={conn[0].x} y1={conn[0].y} x2={conn[1].x} y2={conn[1].y} />
+        {#each $cables as cable}
+            <path use:cablePhysics={cable} />
         {/each}
         {#if $floating}
-            <line
-                use:mousemove
-                x1={$floating.x}
-                y1={$floating.y}
-                x2={mouseEvent?.clientX || $floating.x}
-                y2={mouseEvent?.clientY || $floating.y}
-            />
+            <path use:mousemove use:cablePhysics={[{x: $floating.x, y: $floating.y}, {x: mouseEvent?.clientX || $floating.x, y: mouseEvent?.clientY || $floating.y}]} />
         {/if}
     </svg>
 {/if}
@@ -70,9 +143,10 @@
         height: 100vh;
     }
 
-    line {
+    path {
         stroke: red;
         stroke-width: 2px;
         stroke-linecap: round;
+        fill: none;
     }
 </style>
