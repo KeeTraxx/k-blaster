@@ -4,22 +4,23 @@ export enum View {
 }
 
 
-export interface VisualPort {
+export interface VisualPort<T> {
     element: Element;
-    port: Port;
+    port: T;
 }
 
+export interface MidiPort {
+    componentId: string;
+    name: string;
+    direction: PortDirection;
+    midi: EventTarget;
+}
 
-export interface Port {
+export interface AudioPort {
     componentId: string;
     name: string;
     direction: PortDirection;
     audioNode: AudioNode;
-}
-
-export enum PortType {
-    AUDIO,
-    MIDI,
 }
 
 export enum PortDirection {

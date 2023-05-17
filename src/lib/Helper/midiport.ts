@@ -1,41 +1,43 @@
 import { get, writable } from "svelte/store";
-import { connections, visualPorts } from "../../stores";
-import { type Port, type VisualPort, PortDirection } from "../Components/types.d";
+import { midiConnections, audioPortElements, midiPortElements } from "../../stores";
+import { type AudioPort, type VisualPort, PortDirection, type MidiPort } from "../Components/types";
 
-export const node1 = writable<VisualPort>();
+export const node1 = writable<MidiPort>();
 
 
-const mouseDown = (ev: Event, port: Port) => {
+const mouseDown = (ev: Event, port: MidiPort) => {
     let otherPort = disconnect(port);
     if (!otherPort) {
-        node1.set(get(visualPorts).get(port));
+        node1.set(port);
         return;
     }
 
-    node1.set(get(visualPorts).get(otherPort));
+    node1.set(port);
 }
 
-const disconnect = (port: Port) => {
-    let connection = [...get(connections).entries()].find(d => d[0] === port || d[1] === port);
+const disconnect = (port: MidiPort) => {
+    let connection = [...get(midiConnections).entries()].find(d => d[0] === port || d[1] === port);
 
     if (!connection) {
         return undefined;
     }
-
+    /*
+    TODO
     connection[0].audioNode.disconnect(connection[1].audioNode);
-    connections.update(conns => {
+    audioConnections.update(conns => {
         conns.delete(connection[0]);
         return conns;
     });
     console.log('disconnected', connection);
+    */
 
     return connection[0] === port ? connection[1] : connection[0];
 }
 
-const mouseUp = (ev: Event, port: Port) => {
+const mouseUp = (ev: Event, port: MidiPort) => {
     ev.stopPropagation();
     try {
-        connect(get(node1).port, port);
+        connect(get(node1), port);
     } catch(err) {
         console.warn(err);
     } finally {
@@ -43,8 +45,8 @@ const mouseUp = (ev: Event, port: Port) => {
     }
 }
 
-export function connect(fromPort: Port, toPort: Port) {
-    let outPort: Port;
+export function connect(fromPort: MidiPort, toPort: MidiPort) {
+    let outPort: MidiPort;
 
     if (fromPort.direction === PortDirection.OUT) {
         outPort = fromPort;
@@ -58,7 +60,7 @@ export function connect(fromPort: Port, toPort: Port) {
         throw new Error("No OUT Port");
     }
 
-    let inPort: Port;
+    let inPort: MidiPort;
     if (fromPort.direction === PortDirection.IN) {
         inPort = fromPort;
     }
@@ -71,25 +73,27 @@ export function connect(fromPort: Port, toPort: Port) {
         throw new Error("No IN Port");
     }
 
-    if ([...get(connections).entries()].some(d => d.includes(inPort) || [...d].includes(outPort))) {
+    if ([...get(midiConnections).entries()].some(d => d.includes(inPort) || [...d].includes(outPort))) {
         throw new Error("A port already connected");
     }
 
     console.log('CONNECTING', outPort, inPort)
 
-    outPort.audioNode.connect(inPort.audioNode);
+    /*
+    TODO outPort.audioNode.connect(inPort.audioNode);
+    */
 
-    connections.update(m => m.set(outPort, inPort));
+    midiConnections.update(m => m.set(outPort, inPort));
 }
 
-export function port(element: Element, port: Port) {
+export function midiPort(element: Element, port: MidiPort) {
     element.addEventListener('mousedown', ev => mouseDown(ev, port));
     element.addEventListener('mouseup', ev => mouseUp(ev, port));
-    visualPorts.update($visualPorts => $visualPorts.set(port, { element, port }));
+    midiPortElements.update($visualPorts => $visualPorts.set(port, element));
 
     return {
         destroy() {
-            visualPorts.update($visualPorts => {
+            midiPortElements.update($visualPorts => {
                 $visualPorts.delete(port);
                 return $visualPorts;
             });

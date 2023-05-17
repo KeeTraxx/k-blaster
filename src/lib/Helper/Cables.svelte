@@ -1,8 +1,8 @@
 <script lang="ts">
     import { derived, writable } from "svelte/store";
-    import { connections, view, visualPorts } from "../../stores";
+    import { audioConnections, view, audioPortElements } from "../../stores";
     import { View } from "../Components/types.d";
-    import { node1 } from "./port";
+    import { node1 } from "./audioport";
     import {
         line,
         curveBasis,
@@ -34,21 +34,21 @@
         .curve(curveBasis);
 
     const cables = derived(
-        [connections, visualPorts, resized],
+        [audioConnections, audioPortElements, resized],
         ([connections, visualPorts]) => {
             return [...connections.entries()]
                 .map(
                     (c) =>
                         [
-                            center($visualPorts.get(c[0])?.element),
-                            center($visualPorts.get(c[1])?.element),
+                            center($audioPortElements.get(c[0])),
+                            center($audioPortElements.get(c[1])),
                         ] as [Position, Position]
                 )
                 .filter(Boolean);
         }
     );
     const floating = derived(node1, ($node1) =>
-        $node1 ? center($node1.element) : undefined
+        $node1 ? center($audioPortElements.get($node1)) : undefined
     );
     function mousemove(el: Element) {
         const move = (ev) => (mouseEvent = ev);

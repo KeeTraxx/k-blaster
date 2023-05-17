@@ -1,15 +1,16 @@
 import Immutable from "immutable";
 import { Component } from "../Component";
-import { type Port, PortDirection } from "../types.d";
+import { type AudioPort, PortDirection, type MidiPort } from "../types.d";
 
 export class Mixer extends Component {
     public readonly type: string = "Mixer";
-    public readonly ports: Immutable.Set<Port>;
+    public readonly audioPorts: Immutable.Set<AudioPort>;
+    public readonly midiPorts: Immutable.Set<MidiPort>;
 
     constructor(audioContext: AudioContext, public readonly id: string) {
         super();
 
-        this.ports = Immutable.Set<Port>([
+        this.audioPorts = Immutable.Set<AudioPort>([
             { audioNode: audioContext.createGain(), componentId: id, direction: PortDirection.IN, name: "in-0" },
             { audioNode: audioContext.createGain(), componentId: id, direction: PortDirection.IN, name: "in-1" },
             { audioNode: audioContext.createGain(), componentId: id, direction: PortDirection.IN, name: "in-2" },
@@ -21,8 +22,10 @@ export class Mixer extends Component {
             { audioNode: audioContext.createGain(), componentId: id, direction: PortDirection.OUT, name: "out-0" }
         ]);
 
-        const out0 = this.getPort("out-0");
+        this.midiPorts = Immutable.Set([]);
 
-        this.ports.filter(p => p.direction === PortDirection.IN).forEach(p => p.audioNode.connect(out0.audioNode));
+        const out0 = this.getAudioPort("out-0");
+
+        this.audioPorts.filter(p => p.direction === PortDirection.IN).forEach(p => p.audioNode.connect(out0.audioNode));
     }
 }

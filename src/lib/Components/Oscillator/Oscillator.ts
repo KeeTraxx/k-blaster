@@ -1,22 +1,27 @@
 import Immutable from "immutable";
 import { Component } from "../Component";
-import { type Port, PortDirection } from "../types";
+import { type AudioPort, PortDirection, type MidiPort } from "../types";
 
 export class Oscillator extends Component {
+    public readonly midiPorts: Immutable.Set<MidiPort>;
     public readonly type: string = "Oscillator";
-    public readonly ports: Immutable.Set<Port>;
+    public readonly audioPorts: Immutable.Set<AudioPort>;
 
     private readonly oscillator: OscillatorNode;
 
     constructor(audioContext: AudioContext, public readonly id: string) {
         super();
 
-        this.ports = Immutable.Set<Port>([
+        this.audioPorts = Immutable.Set<AudioPort>([
             { audioNode: audioContext.createGain(), componentId: id, direction: PortDirection.OUT, name: "out-0" }
         ]);
 
         this.oscillator = audioContext.createOscillator();
 
-        this.oscillator.connect(this.getPort('out-0').audioNode);
+        this.oscillator.connect(this.getAudioPort('out-0').audioNode);
+
+        this.midiPorts = Immutable.Set([
+            { componentId: id, direction: PortDirection.OUT, name: "out-0", midi: new EventTarget() }
+        ])
     }
 }
