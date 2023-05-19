@@ -5,11 +5,17 @@
     import type { Component } from "./lib/Components/Component";
     import { Mixer } from "./lib/Components/Mixer/Mixer";
     import MixerSvelte from "./lib/Components/Mixer/Mixer.svelte";
+    import HardwareIoSvelte from "./lib/Components/HardwareIO/HardwareIO.svelte";
+    import { HardwareIO } from "./lib/Components/HardwareIO/HardwareIO";
+    import OscillatorSvelte from "./lib/Components/Oscillator/Oscillator.svelte";
+    import { Oscillator } from "./lib/Components/Oscillator/Oscillator";
 
     let components: Array<Component>;
     
     const svelteComponents = {
-        "Mixer": MixerSvelte
+        "Mixer": MixerSvelte,
+        "HardwareIO": HardwareIoSvelte,
+        "Oscillator": OscillatorSvelte
     }
 
     function k(event: KeyboardEvent) {
@@ -22,6 +28,8 @@
     audioContext.subscribe(ctx => {
         if(ctx) {
             components = [
+                new HardwareIO(ctx, "io"),
+                new Oscillator(ctx),
                 new Mixer(ctx, "mixer-0"),
                 new Mixer(ctx, "mixer-1"),
                 new Mixer(ctx, "mixer-2"),
