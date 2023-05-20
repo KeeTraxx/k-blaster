@@ -1,18 +1,17 @@
 import { get, writable } from "svelte/store";
-import { midiConnections, audioPortElements, midiPortElements } from "../../stores";
-import { type AudioPort, type VisualPort, PortDirection, type MidiPort } from "../Components/types";
+import { midiConnections, midiPortElements } from "../../stores";
+import { PortDirection, type MidiPort } from "../Components/types.d";
 
-export const node1 = writable<MidiPort>();
+export const floatingMidiPort = writable<MidiPort>();
 
 
 const mouseDown = (ev: Event, port: MidiPort) => {
     let otherPort = disconnect(port);
     if (!otherPort) {
-        node1.set(port);
+        floatingMidiPort.set(port);
         return;
     }
-
-    node1.set(port);
+    floatingMidiPort.set(port);
 }
 
 const disconnect = (port: MidiPort) => {
@@ -21,14 +20,16 @@ const disconnect = (port: MidiPort) => {
     if (!connection) {
         return undefined;
     }
-    /*
-    TODO
-    connection[0].audioNode.disconnect(connection[1].audioNode);
-    audioConnections.update(conns => {
+
+    midiConnections.update(conns => {
         conns.delete(connection[0]);
         return conns;
     });
     console.log('disconnected', connection);
+
+    /*
+    TODO
+    connection[0].audioNode.disconnect(connection[1].audioNode);
     */
 
     return connection[0] === port ? connection[1] : connection[0];
@@ -37,11 +38,11 @@ const disconnect = (port: MidiPort) => {
 const mouseUp = (ev: Event, port: MidiPort) => {
     ev.stopPropagation();
     try {
-        connect(get(node1), port);
-    } catch(err) {
+        connect(get(floatingMidiPort), port);
+    } catch (err) {
         console.warn(err);
     } finally {
-        node1.set(undefined);
+        floatingMidiPort.set(undefined);
     }
 }
 

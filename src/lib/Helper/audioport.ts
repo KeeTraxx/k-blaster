@@ -2,17 +2,17 @@ import { get, writable } from "svelte/store";
 import { audioConnections, audioPortElements } from "../../stores";
 import { type AudioPort, PortDirection, type MidiPort } from "../Components/types.d";
 
-export const node1 = writable<AudioPort>();
+export const floatingAudioPort = writable<AudioPort>();
 
 
 const mouseDown = (ev: Event, port: AudioPort) => {
     let otherPort = disconnect(port);
     if (!otherPort) {
-        node1.set(port);
+        floatingAudioPort.set(port);
         return;
     }
 
-    node1.set(port);
+    floatingAudioPort.set(port);
 }
 
 const disconnect = (port: AudioPort) => {
@@ -35,11 +35,11 @@ const disconnect = (port: AudioPort) => {
 const mouseUp = (ev: Event, port: AudioPort) => {
     ev.stopPropagation();
     try {
-        connect(get(node1), port);
+        connect(get(floatingAudioPort), port);
     } catch(err) {
         console.warn(err);
     } finally {
-        node1.set(undefined);
+        floatingAudioPort.set(undefined);
     }
 }
 

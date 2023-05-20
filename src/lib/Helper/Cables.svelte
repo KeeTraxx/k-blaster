@@ -1,18 +1,25 @@
 <script lang="ts">
-    import { derived, writable } from "svelte/store";
-    import { audioConnections, view, audioPortElements } from "../../stores";
-    import { View } from "../Components/types.d";
-    import { node1 } from "./audioport";
     import {
-        line,
         curveBasis,
-        range,
-        forceSimulation,
-        pairs,
         forceCollide,
         forceLink,
+        forceSimulation,
         forceY,
+        line,
+        pairs,
+        range,
     } from "d3";
+    import { derived, writable } from "svelte/store";
+    import {
+        audioConnections,
+        audioPortElements,
+        midiConnections,
+        midiPortElements,
+        view,
+    } from "../../stores";
+    import { View } from "../Components/types.d";
+    import { floatingAudioPort } from "./audioport";
+    import { floatingMidiPort } from "./midiport";
 
     let mouseEvent: MouseEvent = undefined;
     let resized = writable();
@@ -33,10 +40,10 @@
         .y((d) => d.y || 0)
         .curve(curveBasis);
 
-    const cables = derived(
+    const audioCables = derived(
         [audioConnections, audioPortElements, resized],
-        ([connections, visualPorts]) => {
-            return [...connections.entries()]
+        ([$audioConnections, $audioPortElements]) => {
+            return [...$audioConnections.entries()]
                 .map(
                     (c) =>
                         [
@@ -47,12 +54,41 @@
                 .filter(Boolean);
         }
     );
-    const floating = derived(node1, ($node1) =>
-        $node1 ? center($audioPortElements.get($node1)) : undefined
+
+    const midiCables = derived(
+        [midiConnections, midiPortElements, resized],
+        ([$midiConnections, $midiPortElements]) => {
+            return [...$midiConnections.entries()]
+                .map(
+                    (c) =>
+                        [
+                            center($midiPortElements.get(c[0])),
+                            center($midiPortElements.get(c[1])),
+                        ] as [Position, Position]
+                )
+                .filter(Boolean);
+        }
+    );
+
+    const floating = derived(
+        [floatingAudioPort, floatingMidiPort],
+        ([$floatingAudioPort, $floatingMidiPort]) => {
+            if ($floatingAudioPort) {
+                return center($audioPortElements.get($floatingAudioPort));
+            }
+
+            if (floatingMidiPort) {
+                return center($midiPortElements.get($floatingMidiPort));
+            }
+            return undefined;
+        }
     );
     function mousemove(el: Element) {
         const move = (ev) => (mouseEvent = ev);
-        const up = (ev) => node1.set(undefined);
+        const up = (ev) => {
+            floatingAudioPort.set(undefined);
+            floatingMidiPort.set(undefined);
+        };
 
         document.addEventListener("mousemove", move);
         document.addEventListener("mouseup", up);
@@ -127,11 +163,24 @@
 
 {#if $view === View.BACK}
     <svg>
-        {#each $cables as cable}
-            <path use:cablePhysics={cable} />
+        {#each $audioCables as cable}
+            <path class="audio" use:cablePhysics={cable} />
+        {/each}
+        {#each $midiCables as cable}
+            <path class="midi" use:cablePhysics={cable} />
         {/each}
         {#if $floating}
-            <path use:mousemove use:cablePhysics={[{x: $floating.x, y: $floating.y}, {x: mouseEvent?.clientX || $floating.x, y: mouseEvent?.clientY || $floating.y}]} />
+            <path
+                class="audio"
+                use:mousemove
+                use:cablePhysics={[
+                    { x: $floating.x, y: $floating.y },
+                    {
+                        x: mouseEvent?.clientX || $floating.x,
+                        y: mouseEvent?.clientY || $floating.y,
+                    },
+                ]}
+            />
         {/if}
     </svg>
 {/if}
@@ -144,9 +193,17 @@
     }
 
     path {
-        stroke: red;
-        stroke-width: 2px;
         stroke-linecap: round;
         fill: none;
+    }
+
+    path.audio {
+        stroke: red;
+        stroke-width: 2px;
+    }
+
+    path.midi {
+        stroke: blue;
+        stroke-width: 2px;
     }
 </style>

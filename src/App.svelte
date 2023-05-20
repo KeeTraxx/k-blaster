@@ -9,13 +9,16 @@
     import { HardwareIO } from "./lib/Components/HardwareIO/HardwareIO";
     import OscillatorSvelte from "./lib/Components/Oscillator/Oscillator.svelte";
     import { Oscillator } from "./lib/Components/Oscillator/Oscillator";
+    import MidiPlayerSvelte from "./lib/Components/MidiPlayer/MidiPlayer.svelte";
+    import { MidiPlayer } from "./lib/Components/MidiPlayer/MidiPlayer";
 
     let components: Array<Component>;
     
     const svelteComponents = {
         "Mixer": MixerSvelte,
         "HardwareIO": HardwareIoSvelte,
-        "Oscillator": OscillatorSvelte
+        "Oscillator": OscillatorSvelte,
+        "MidiPlayer": MidiPlayerSvelte
     }
 
     function k(event: KeyboardEvent) {
@@ -29,14 +32,9 @@
         if(ctx) {
             components = [
                 new HardwareIO(ctx, "io"),
-                new Oscillator(ctx),
                 new Mixer(ctx, "mixer-0"),
-                new Mixer(ctx, "mixer-1"),
-                new Mixer(ctx, "mixer-2"),
-                new Mixer(ctx, "mixer-3"),  
-                new Mixer(ctx, "mixer-4"),
-                new Mixer(ctx, "mixer-5"),
-                new Mixer(ctx, "mixer-6"),  
+                new Oscillator(ctx, "oscillator-0"),
+                new MidiPlayer("midiplayer")
             ]
         }
     });

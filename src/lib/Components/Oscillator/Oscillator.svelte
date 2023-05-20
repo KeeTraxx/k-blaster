@@ -1,6 +1,7 @@
 <script lang="ts">
     import { view } from "../../../stores";
-    import Port from "../../Helper/AudioPort.svelte";
+    import AudioPort from "../../Helper/AudioPort.svelte";
+    import MidiPort from "../../Helper/MidiPort.svelte";
     import { PortDirection, View } from "../types.d";
     import type { Oscillator } from "./Oscillator";
 
@@ -11,7 +12,7 @@
     <svg viewBox="0 0 960 250" preserveAspectRatio="xMidYMid meet">
         <rect width="960" height="250" fill="grey" />
         <text x="100" y="100">Oscillator</text>
-        <rect width=100 height=100 fill=blue on:click={ev => config.test()}></rect>
+        <rect width=100 height=100 fill=blue on:click={ev => config.play()}></rect>
     </svg>
 {/if}
 
@@ -19,7 +20,9 @@
     <svg viewBox="0 0 960 250" preserveAspectRatio="xMidYMid meet">
         <rect width="960" height="250" fill="grey" />
         <text x="0" y="20">Oscillator back</text>
-        <Port x="100" y="100" p={config.getAudioPort("out-0")}/>
+        <AudioPort x="100" y="100" p={config.getAudioPort("out-0")}/>
+        <MidiPort x="200" y="100" p={config.getMidiPort("in-0")}/>
+
     </svg>
 {/if}
 

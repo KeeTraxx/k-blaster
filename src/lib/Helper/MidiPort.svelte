@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { MidiPort } from "../Components/types";
+    import type { MidiPort } from "../Components/types.d";
     import { midiPort } from "./midiport";
 
     export let p : MidiPort;
