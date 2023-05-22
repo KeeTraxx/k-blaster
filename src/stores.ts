@@ -1,5 +1,5 @@
 import { derived, writable } from "svelte/store";
-import { View, type AudioPort, type VisualPort, type MidiPort } from './lib/Components/types.d';
+import { View, type AudioPort, type VisualPort, type MidiPort } from './lib/Components/types';
 
 export const audioConnections = writable(new Map<AudioPort, AudioPort>());
 export const midiConnections = writable(new Map<MidiPort, MidiPort>());

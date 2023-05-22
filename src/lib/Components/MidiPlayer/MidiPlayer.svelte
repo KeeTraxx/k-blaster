@@ -1,7 +1,7 @@
 <script lang="ts">
     import { view } from "../../../stores";
     import MidiPort from "../../Helper/MidiPort.svelte";
-    import { View } from "../types.d";
+    import { View } from "../types";
     import type { MidiPlayer } from "./MidiPlayer";
 
     export let config: MidiPlayer;

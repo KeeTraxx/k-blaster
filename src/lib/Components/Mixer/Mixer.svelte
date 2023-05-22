@@ -1,7 +1,7 @@
 <script lang="ts">
     import { view } from "../../../stores";
     import Port from "../../Helper/AudioPort.svelte";
-    import { PortDirection, View } from "../types.d";
+    import { PortDirection, View } from "../types";
     import type { Mixer } from "./Mixer";
 
     export let config: Mixer;

@@ -1,6 +1,6 @@
 import { get, writable } from "svelte/store";
 import { midiConnections, midiPortElements } from "../../stores";
-import { PortDirection, type MidiPort } from "../Components/types.d";
+import { PortDirection, type MidiPort } from "../Components/types";
 
 export const floatingMidiPort = writable<MidiPort>();
 

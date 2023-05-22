@@ -2,7 +2,7 @@
     import { view } from "../../../stores";
     import AudioPort from "../../Helper/AudioPort.svelte";
     import MidiPort from "../../Helper/MidiPort.svelte";
-    import { PortDirection, View } from "../types.d";
+    import { PortDirection, View } from "../types";
     import type { Oscillator } from "./Oscillator";
 
     export let config: Oscillator;

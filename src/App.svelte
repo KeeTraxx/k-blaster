@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { View } from "./lib/Components/types.d";
+    import { View } from "./lib/Components/types";
     import Cables from "./lib/Helper/Cables.svelte";
     import { audioContext, view } from "./stores";
     import type { Component } from "./lib/Components/Component";

@@ -1,3 +1,5 @@
+import type { AnyEvent } from "midifile-ts";
+
 export enum View {
     FRONT,
     BACK
@@ -26,4 +28,10 @@ export interface AudioPort {
 export enum PortDirection {
     OUT,
     IN,
+}
+
+export interface EventWithTime<T extends AnyEvent> {
+    event: T;
+    absoluteTick: number;
+    absoluteTimeMs: number;
 }

@@ -1,6 +1,6 @@
 import Immutable from "immutable";
 import { Component } from "../Component";
-import { type AudioPort, PortDirection, type MidiPort } from "../types.d";
+import { type AudioPort, PortDirection, type MidiPort } from "../types";
 import { get, writable } from "svelte/store";
 
 export class Oscillator extends Component {

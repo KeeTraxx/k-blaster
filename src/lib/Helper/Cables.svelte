@@ -17,7 +17,7 @@
         midiPortElements,
         view,
     } from "../../stores";
-    import { View } from "../Components/types.d";
+    import { View } from "../Components/types";
     import { floatingAudioPort } from "./audioport";
     import { floatingMidiPort } from "./midiport";
 
