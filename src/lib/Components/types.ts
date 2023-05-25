@@ -34,4 +34,5 @@ export interface EventWithTime<T extends AnyEvent> {
     event: T;
     absoluteTick: number;
     absoluteTimeMs: number;
+    deltaMs: number;
 }

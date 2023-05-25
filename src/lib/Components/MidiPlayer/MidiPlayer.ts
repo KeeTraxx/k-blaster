@@ -31,6 +31,7 @@ export class MidiPlayer extends Component {
         const midiFile = read(buffer);
         this.header = midiFile.header;
         const search = bisector<EventWithTime<SetTempoEvent>, number>(d => d.absoluteTick).left;
+        this.tempochanges = [];
 
         midiFile.tracks.forEach(track => {
             let absoluteTick = 0;
@@ -39,13 +40,15 @@ export class MidiPlayer extends Component {
                 if (event.type === 'meta' && event.subtype === 'setTempo') {
                     const lastTempoChange = this.tempochanges[search(this.tempochanges, absoluteTick)];
                     const ticksPerQuarter = this.header.ticksPerBeat;
-                    const microSecondsPerQuarter = lastTempoChange.event.microsecondsPerBeat;
+                    const microSecondsPerQuarter = lastTempoChange?.event?.microsecondsPerBeat || 500;
                     const microSecondsPerTick = microSecondsPerQuarter / ticksPerQuarter;
-                    const ticksSinceLastTempoChange = absoluteTick - lastTempoChange.absoluteTick;
+                    const ticksSinceLastTempoChange = absoluteTick - (lastTempoChange?.absoluteTick || 0);
+                    const deltaMs = event.deltaTime * microSecondsPerTick;
                     const result = {
                         event,
                         absoluteTick,
-                        absoluteTimeMs: lastTempoChange.absoluteTimeMs + (ticksSinceLastTempoChange * microSecondsPerTick)
+                        absoluteTimeMs: (lastTempoChange?.absoluteTimeMs || 0) + (ticksSinceLastTempoChange * microSecondsPerTick),
+                        deltaMs
                     };
                     this.tempochanges.push(result as EventWithTime<SetTempoEvent>);
                 }
@@ -58,19 +61,22 @@ export class MidiPlayer extends Component {
                 absoluteTick += event.deltaTime;
                 const lastTempoChange = this.tempochanges[search(this.tempochanges, absoluteTick)];
                 const ticksPerQuarter = this.header.ticksPerBeat;
-                const microSecondsPerQuarter = lastTempoChange.event.microsecondsPerBeat;
+                const microSecondsPerQuarter = lastTempoChange?.event?.microsecondsPerBeat || 500;
                 const microSecondsPerTick = microSecondsPerQuarter / ticksPerQuarter;
-                const ticksSinceLastTempoChange = absoluteTick - lastTempoChange.absoluteTick;
+                const ticksSinceLastTempoChange = absoluteTick - (lastTempoChange?.absoluteTick || 0);
+                const deltaMs = event.deltaTime * microSecondsPerTick;
                 const result = {
                     event,
                     absoluteTick,
-                    absoluteTimeMs: lastTempoChange.absoluteTimeMs + (ticksSinceLastTempoChange * microSecondsPerTick)
+                    absoluteTimeMs: (lastTempoChange?.absoluteTimeMs || 0) + (ticksSinceLastTempoChange * microSecondsPerTick),
+                    deltaMs
                 };
                 return result;
             });
         });
 
         console.log(this.tracks, this.tempochanges);
+        this.play();
     }
 
     public play() {
@@ -85,12 +91,12 @@ export class MidiPlayer extends Component {
 
     private async playTrack(trackEvents: Array<EventWithTime<AnyEvent>>) {
         while (trackEvents.length > 0) {
-            const event = trackEvents.shift();
-            //if (event.deltaTime > 0) {
-            //    await this.wait(event.deltaTime);
-            //}
+            const eventWithTime = trackEvents.shift();
+            if (eventWithTime?.deltaMs > 0) {
+                await this.wait(eventWithTime.deltaMs);
+            }
 
-            this.emit(event.event);
+            this.emit(eventWithTime.event);
         }
     }
 
@@ -99,6 +105,6 @@ export class MidiPlayer extends Component {
     }
 
     private emit(ev: AnyEvent) {
-
+        console.log('emitting' ,ev);
     }
 }
