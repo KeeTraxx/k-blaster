@@ -2,6 +2,7 @@ import Immutable from "immutable";
 import { Component } from "../Component";
 import { type AudioPort, PortDirection, type MidiPort } from "../types";
 import { get, writable } from "svelte/store";
+import type { AnyEvent } from "midifile-ts";
 
 export class Oscillator extends Component {
     public readonly midiPorts: Immutable.Set<MidiPort>;
@@ -24,6 +25,11 @@ export class Oscillator extends Component {
         this.midiPorts = Immutable.Set([
             midiIn
         ]);
+
+        midiIn.midi.addEventListener("midimessage", (ev:CustomEvent<AnyEvent>) => this.onMidiMessage(ev.detail))
+    }
+    private onMidiMessage(midiMessage: AnyEvent) {
+        console.log('osc got midi', midiMessage);
     }
 
     public play(frequency: number = 440, seconds: number = 1) {

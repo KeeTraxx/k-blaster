@@ -1,9 +1,8 @@
+import { bisector } from "d3";
 import Immutable from "immutable";
-import { writable } from "svelte/store";
+import { read, type AnyEvent, type MidiHeader, type SetTempoEvent } from "midifile-ts";
 import { Component } from "../Component";
-import { PortDirection, type AudioPort, type MidiPort, type EventWithTime } from "../types";
-import { read, type MidiFile, type AnyEvent, type MidiHeader, type SetTempoEvent } from "midifile-ts";
-import { bisector, type Bisector } from "d3";
+import { PortDirection, type AudioPort, type EventWithTime, type MidiPort } from "../types";
 
 export class MidiPlayer extends Component {
     public readonly midiPorts: Immutable.Set<MidiPort>;
@@ -101,10 +100,11 @@ export class MidiPlayer extends Component {
     }
 
     private async wait(ms: number) {
-        return await new Promise((resolve) => { setTimeout(() => resolve(undefined), ms) })
+        return await new Promise<void>((resolve) => { setTimeout(() => resolve(), ms) })
     }
 
     private emit(ev: AnyEvent) {
-        console.log('emitting' ,ev);
+        console.log('midiplayer dispatch', ev);
+        this.midiOut.midi.dispatchEvent(new CustomEvent<AnyEvent>("midimessage", {detail: ev}));
     }
 }

@@ -1,6 +1,7 @@
 import { get, writable } from "svelte/store";
 import { midiConnections, midiPortElements } from "../../stores";
 import { PortDirection, type MidiPort } from "../Components/types";
+import type { AnyEvent } from "midifile-ts";
 
 export const floatingMidiPort = writable<MidiPort>();
 
@@ -78,7 +79,9 @@ export function connect(fromPort: MidiPort, toPort: MidiPort) {
         throw new Error("A port already connected");
     }
 
-    console.log('CONNECTING', outPort, inPort)
+    console.log('CONNECTING', outPort, inPort);
+
+    outPort.midi.addEventListener("midimessage", (ev: CustomEvent<AnyEvent>) => inPort.midi.dispatchEvent(new CustomEvent<AnyEvent>("midimessage", {detail: ev.detail})));
 
     /*
     TODO outPort.audioNode.connect(inPort.audioNode);
