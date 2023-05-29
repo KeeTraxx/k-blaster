@@ -52,8 +52,9 @@ export class Oscillator extends Component {
                         this.oscillators.set(message.noteNumber, {oscillatorNode, gainNode});
                         oscillatorNode.type = get(this.waveForm);
                         gainNode.connect(this.getAudioPort('out-0').audioNode);
-                        // gainNode.gain.setValueAtTime(0, this.audioContext.currentTime);
-                        // gainNode.gain.linearRampToValueAtTime(1, this.audioContext.currentTime + 0.1);
+
+                        gainNode.gain.setValueAtTime(0, this.audioContext.currentTime);
+                        gainNode.gain.linearRampToValueAtTime(message.velocity / 127, this.audioContext.currentTime + 0.01);
                         const frequency = this.midiNoteToFreq(message.noteNumber);
                         oscillatorNode.frequency.setValueAtTime(frequency, this.audioContext.currentTime);
                         oscillatorNode.start();
@@ -87,7 +88,7 @@ export class Oscillator extends Component {
             return;
         }
 
-        gainNode.gain.linearRampToValueAtTime(0, this.audioContext.currentTime + 0.01);
+        gainNode.gain.linearRampToValueAtTime(0, this.audioContext.currentTime + 0.1);
         oscillatorNode.stop(this.audioContext.currentTime + 0.5);
         oscillatorNode.addEventListener("ended", () => {
             gainNode.disconnect();
