@@ -1,8 +1,9 @@
 <script lang="ts">
     import { view } from "../../../stores";
-    import Port from "../../Helper/AudioPort.svelte";
-    import { PortDirection, View } from "../types";
+    import AudioPort from "../../Helper/AudioPort.svelte";
+    import { View } from "../types";
     import type { HardwareIO } from "./HardwareIO";
+    import MidiIo from "./MidiIO.svelte";
 
     export let config: HardwareIO;
 </script>
@@ -18,7 +19,11 @@
     <svg viewBox="0 0 960 250" preserveAspectRatio="xMidYMid meet">
         <rect width="960" height="250" fill="grey" />
         <text x="0" y="20">HardwareIO</text>
-        <Port x="100" y="100" p={config.getAudioPort("default-in")}/>
+        <AudioPort x="100" y="100" p={config.getAudioPort("default-in")}/>
+        {#each [...config.midiDevices.values()] as dev, i}
+            <MidiIo x={200 + 50 * i} y={100} midiDevice={dev} hardwareIO={config} />
+        {/each}
+        
     </svg>
 {/if}
 

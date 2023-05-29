@@ -36,3 +36,15 @@ export interface EventWithTime<T extends AnyEvent> {
     absoluteTimeMs: number;
     deltaMs: number;
 }
+
+export interface AudioAccess {
+    audioContext: AudioContext;
+    midiAccess: MIDIAccess;
+}
+
+export interface MidiDevice {
+    manufacturer: string;
+    name: string;
+    input?: MIDIInput;
+    output?: MIDIOutput;
+}

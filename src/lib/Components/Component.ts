@@ -1,7 +1,7 @@
 import type { AudioPort, MidiPort } from "./types";
 
 export abstract class Component {
-    constructor(public readonly id: string) {
+    constructor(public readonly id: string, public readonly audioContext: AudioContext, public readonly midiAccess: MIDIAccess) {
 
     }
 

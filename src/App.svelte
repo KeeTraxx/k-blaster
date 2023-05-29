@@ -1,7 +1,7 @@
 <script lang="ts">
-    import { View } from "./lib/Components/types";
+    import { View, type AudioAccess } from "./lib/Components/types";
     import Cables from "./lib/Helper/Cables.svelte";
-    import { audioContext, view } from "./stores";
+    import { view, audioAccess } from "./stores";
     import type { Component } from "./lib/Components/Component";
     import { Mixer } from "./lib/Components/Mixer/Mixer";
     import MixerSvelte from "./lib/Components/Mixer/Mixer.svelte";
@@ -16,6 +16,7 @@
     import { connect as connectAudio } from "./lib/Helper/audioport";
 
     let components: Array<Component>;
+
 
     const componentMap = {
         Mixer: {
@@ -34,17 +35,13 @@
         }
     }
 
-    audioContext.subscribe((ctx) => {
-        if (ctx) {
-            /* components = [
-                new HardwareIO(ctx, "io"),
-                new Mixer(ctx, "mixer-0"),
-                new Oscillator(ctx, "oscillator-0"),
-                new MidiPlayer("midiplayer")
-            ];*/
+    audioAccess.subscribe(($audioAccess) => {
+        if ($audioAccess) {
+
+            const {audioContext, midiAccess} = $audioAccess;
 
             components = defaultConfig.components.map(
-                (c) => new componentMap[c.type].ts(ctx, c.id)
+                (c) => new componentMap[c.type].ts(c.id, audioContext, midiAccess)
             );
 
             defaultConfig.connections.forEach((c) => {
@@ -75,7 +72,7 @@
 
 <svelte:window on:keydown={k} />
 
-{#if $audioContext}
+{#if $audioAccess}
     <div class="layers">
         <main>
             {#each components as c}
@@ -90,7 +87,7 @@
         </aside>
     </div>
 {:else}
-    <button on:click={() => ($audioContext = new AudioContext())}>START</button>
+    <button on:click={async () => ($audioAccess = {audioContext: new AudioContext(), midiAccess: await navigator.requestMIDIAccess({software: true})} )}>START</button>
 {/if}
 
 <style>

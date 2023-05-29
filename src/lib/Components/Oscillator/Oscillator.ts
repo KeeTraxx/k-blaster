@@ -11,8 +11,8 @@ export class Oscillator extends Component {
     public waveForm = writable<OscillatorType>("sine");
     private oscillators = new Map<number, OscillatorAndGainNode>();
 
-    constructor(private audioContext: AudioContext, public readonly id: string) {
-        super(id);
+    constructor(public readonly id: string, public readonly audioContext: AudioContext, public readonly midiAccess: MIDIAccess) {
+        super(id, audioContext, midiAccess);
 
         const audioNode = audioContext.createGain();
         audioNode.gain.setValueAtTime(0.2, 0);

@@ -16,8 +16,8 @@ export class MidiPlayer extends Component {
 
     public readonly channelPorts: Array<MidiPort>;
 
-    constructor(private ctx: AudioContext, public readonly id: string) {
-        super(id);
+    constructor(public readonly id: string, public readonly audioContext: AudioContext, public readonly midiAccess: MIDIAccess) {
+        super(id, audioContext, midiAccess);
 
         this.audioPorts = Immutable.Set<AudioPort>([]);
 
