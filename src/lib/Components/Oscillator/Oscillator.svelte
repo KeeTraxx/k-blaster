@@ -21,7 +21,11 @@
         <rect width="960" height="250" fill="grey" />
         <text x="0" y="20">Oscillator back</text>
         <AudioPort x="100" y="100" p={config.getAudioPort("out-0")}/>
-        <MidiPort x="200" y="100" p={config.getMidiPort("in-0")}/>
+
+        {#each [...config.midiPorts] as port, i}
+        <MidiPort x={200 + 40 * i} y="100" p={port}/>
+        {/each}
+
 
     </svg>
 {/if}

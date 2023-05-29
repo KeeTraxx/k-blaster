@@ -1,7 +1,7 @@
 import type { AudioPort, MidiPort } from "./types";
 
 export abstract class Component {
-    constructor() {
+    constructor(public readonly id: string) {
 
     }
 
@@ -11,7 +11,7 @@ export abstract class Component {
             return port;
         }
 
-        throw new Error(`AudioPort ${name} not found`);
+        throw new Error(`AudioPort ${name} not found in component ${this.id}`);
     }
 
     public getMidiPort(name: string): MidiPort {

@@ -1,0 +1,50 @@
+{
+    "components": [
+        {
+            "type": "HardwareIO",
+            "id": "io"
+        },
+        {
+            "type": "Mixer",
+            "id": "mixer-0"
+        },
+        {
+            "type": "Oscillator",
+            "id": "oscillator-0"
+        },
+        {
+            "type": "MidiPlayer",
+            "id": "midiplayer-0"
+        }
+    ],
+    "connections": [
+        {
+            "type": "midi",
+            "fromComponentId": "midiplayer-0",
+            "fromPort": "out-0",
+            "toComponentId": "oscillator-0",
+            "toPort": "in-0"
+        },
+        {
+            "type": "midi",
+            "fromComponentId": "midiplayer-0",
+            "fromPort": "out-1",
+            "toComponentId": "oscillator-0",
+            "toPort": "in-1"
+        },
+        {
+            "type": "audio",
+            "fromComponentId": "oscillator-0",
+            "fromPort": "out-0",
+            "toComponentId": "mixer-0",
+            "toPort": "in-0"
+        },
+        {
+            "type": "audio",
+            "fromComponentId": "mixer-0",
+            "fromPort": "out-0",
+            "toComponentId": "io",
+            "toPort": "default-in"
+        }
+    ]
+}

@@ -1,47 +1,80 @@
 import Immutable from "immutable";
-import { Component } from "../Component";
-import { type AudioPort, PortDirection, type MidiPort } from "../types";
+import { Stream, deserializeSingleEvent } from "midifile-ts";
 import { get, writable } from "svelte/store";
-import type { AnyEvent } from "midifile-ts";
+import { Component } from "../Component";
+import { PortDirection, type AudioPort, type MidiPort } from "../types";
 
 export class Oscillator extends Component {
     public readonly midiPorts: Immutable.Set<MidiPort>;
     public readonly type: string = "Oscillator";
     public readonly audioPorts: Immutable.Set<AudioPort>;
-    public ppq = writable(480);
     public waveForm = writable<OscillatorType>("sine");
+    private oscillators = new Map<number, OscillatorNode>();
 
     constructor(private audioContext: AudioContext, public readonly id: string) {
-        super();
+        super(id);
 
+        const audioNode = audioContext.createGain();
+        audioNode.gain.setValueAtTime(0.2, 0);
         this.audioPorts = Immutable.Set<AudioPort>([
-            { audioNode: audioContext.createGain(), componentId: id, direction: PortDirection.OUT, name: "out-0" }
+            { audioNode, componentId: id, direction: PortDirection.OUT, name: "out-0" }
         ]);
-
-        const midiIn = { componentId: id, direction: PortDirection.IN, name: "in-0", midi: new EventTarget() }
-
-        midiIn.midi.addEventListener("midimessage", this.playMidi);
 
         this.midiPorts = Immutable.Set([
-            midiIn
+            { componentId: id, direction: PortDirection.IN, name: "in-0", midi: new EventTarget() },
+            { componentId: id, direction: PortDirection.IN, name: "in-1", midi: new EventTarget() },
+            { componentId: id, direction: PortDirection.IN, name: "in-2", midi: new EventTarget() },
+            { componentId: id, direction: PortDirection.IN, name: "in-3", midi: new EventTarget() },
+            { componentId: id, direction: PortDirection.IN, name: "in-4", midi: new EventTarget() },
+            { componentId: id, direction: PortDirection.IN, name: "in-5", midi: new EventTarget() },
+            { componentId: id, direction: PortDirection.IN, name: "in-6", midi: new EventTarget() },
+            { componentId: id, direction: PortDirection.IN, name: "in-7", midi: new EventTarget() },
         ]);
 
-        midiIn.midi.addEventListener("midimessage", (ev:CustomEvent<AnyEvent>) => this.onMidiMessage(ev.detail))
-    }
-    private onMidiMessage(midiMessage: AnyEvent) {
-        console.log('osc got midi', midiMessage);
-    }
-
-    public play(frequency: number = 440, seconds: number = 1) {
-        const oscillator = this.audioContext.createOscillator();
-        oscillator.type = get(this.waveForm);
-        oscillator.connect(this.getAudioPort('out-0').audioNode);
-        oscillator.frequency.setValueAtTime(frequency, this.audioContext.currentTime);
-        oscillator.start();
-        oscillator.stop(this.audioContext.currentTime + seconds);
+        [...this.midiPorts].forEach(p => p.midi.addEventListener("midimessage", (ev: MIDIMessageEvent) => this.playMidi(ev)));
     }
 
     public playMidi(midiMessage: MIDIMessageEvent) {
-        console.log('Oscillator wanna play', midiMessage);
+        const message = deserializeSingleEvent(new Stream(midiMessage.data));
+        switch (message.type) {
+            case "channel":
+                switch (message.subtype) {
+                    case "noteOff":
+                        this.oscillators.get(message.noteNumber)?.stop();
+                        break;
+                    case "noteOn":
+                        this.oscillators.get(message.noteNumber)?.stop();
+                        const oscillator = this.audioContext.createOscillator();
+                        this.oscillators.set(message.noteNumber, oscillator);
+                        oscillator.type = get(this.waveForm);
+                        oscillator.connect(this.getAudioPort('out-0').audioNode);
+                        const frequency = this.midiNoteToFreq(message.noteNumber);
+                        oscillator.frequency.setValueAtTime(frequency, this.audioContext.currentTime);
+                        oscillator.start();
+                        oscillator.stop(this.audioContext.currentTime + 10);
+                        break;
+                    case "unknown":
+                    case "noteAftertouch":
+                    case "programChange":
+                    case "channelAftertouch":
+                    case "pitchBend":
+                    case "controller":
+                        console.warn('unsupported event', message);
+                        break;
+                }
+                break;
+            case "meta":
+            case "sysEx":
+            case "dividedSysEx":
+            default:
+                console.warn('unsupported event', message);
+                break;
+        }
+
+    }
+
+    private midiNoteToFreq(midiNote: number): number {
+        const a = 440;
+        return a / 32 * (Math.pow(2, (midiNote - 9) / 12));
     }
 }

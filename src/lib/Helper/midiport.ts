@@ -1,10 +1,9 @@
 import { get, writable } from "svelte/store";
 import { midiConnections, midiPortElements } from "../../stores";
 import { PortDirection, type MidiPort } from "../Components/types";
-import type { AnyEvent } from "midifile-ts";
 
 export const floatingMidiPort = writable<MidiPort>();
-
+const listenerMap = new Map<MidiPort, EventListenerOrEventListenerObject>();
 
 const mouseDown = (ev: Event, port: MidiPort) => {
     let otherPort = disconnect(port);
@@ -22,17 +21,14 @@ const disconnect = (port: MidiPort) => {
         return undefined;
     }
 
+    
+    connection[0].midi.removeEventListener('midimessage', listenerMap.get(connection[0]));
+
     midiConnections.update(conns => {
         conns.delete(connection[0]);
         return conns;
     });
     console.log('disconnected', connection);
-
-    /*
-    TODO
-    connection[0].audioNode.disconnect(connection[1].audioNode);
-    */
-
     return connection[0] === port ? connection[1] : connection[0];
 }
 
@@ -81,11 +77,10 @@ export function connect(fromPort: MidiPort, toPort: MidiPort) {
 
     console.log('CONNECTING', outPort, inPort);
 
-    outPort.midi.addEventListener("midimessage", (ev: CustomEvent<AnyEvent>) => inPort.midi.dispatchEvent(new CustomEvent<AnyEvent>("midimessage", {detail: ev.detail})));
+    const listener = (ev: MIDIMessageEvent) => inPort.midi.dispatchEvent(new MIDIMessageEvent("midimessage", { data: ev.data }));
+    listenerMap.set(outPort, listener);
 
-    /*
-    TODO outPort.audioNode.connect(inPort.audioNode);
-    */
+    outPort.midi.addEventListener("midimessage", listener);
 
     midiConnections.update(m => m.set(outPort, inPort));
 }

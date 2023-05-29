@@ -1,6 +1,6 @@
 import { bisector } from "d3";
 import Immutable from "immutable";
-import { read, type AnyEvent, type MidiHeader, type SetTempoEvent } from "midifile-ts";
+import { read, type AnyEvent, type MidiHeader, type SetTempoEvent, serialize } from "midifile-ts";
 import { Component } from "../Component";
 import { PortDirection, type AudioPort, type EventWithTime, type MidiPort } from "../types";
 
@@ -8,22 +8,33 @@ export class MidiPlayer extends Component {
     public readonly midiPorts: Immutable.Set<MidiPort>;
     public readonly type: string = "MidiPlayer";
     public readonly audioPorts: Immutable.Set<AudioPort>;
-    private midiOut: MidiPort;
+    private midiOutAll: MidiPort;
 
     private header: MidiHeader;
     private tracks: Array<EventWithTime<AnyEvent>[]>;
     private tempochanges: Array<EventWithTime<SetTempoEvent>>;
 
-    constructor(public readonly id: string) {
-        super();
+    public readonly channelPorts: Array<MidiPort>;
+
+    constructor(private ctx: AudioContext, public readonly id: string) {
+        super(id);
 
         this.audioPorts = Immutable.Set<AudioPort>([]);
 
-        this.midiOut = { componentId: id, direction: PortDirection.OUT, name: "out-0", midi: new EventTarget() }
+        this.midiOutAll = { componentId: id, direction: PortDirection.OUT, name: "out-all", midi: new EventTarget() }
+        this.channelPorts = [
+            { componentId: id, direction: PortDirection.OUT, name: "out-0", midi: new EventTarget() },
+            { componentId: id, direction: PortDirection.OUT, name: "out-1", midi: new EventTarget() },
+            { componentId: id, direction: PortDirection.OUT, name: "out-2", midi: new EventTarget() },
+            { componentId: id, direction: PortDirection.OUT, name: "out-3", midi: new EventTarget() },
+            { componentId: id, direction: PortDirection.OUT, name: "out-4", midi: new EventTarget() },
+            { componentId: id, direction: PortDirection.OUT, name: "out-5", midi: new EventTarget() },
+            { componentId: id, direction: PortDirection.OUT, name: "out-6", midi: new EventTarget() },
+            { componentId: id, direction: PortDirection.OUT, name: "out-7", midi: new EventTarget() },
+        ];
 
-        this.midiPorts = Immutable.Set([
-            this.midiOut
-        ]);
+        this.midiPorts = Immutable.Set([this.midiOutAll, ...this.channelPorts]);
+
     }
 
     public load(buffer: ArrayBuffer) {
@@ -39,14 +50,14 @@ export class MidiPlayer extends Component {
                 if (event.type === 'meta' && event.subtype === 'setTempo') {
                     const lastTempoChange = this.tempochanges[search(this.tempochanges, absoluteTick)];
                     const ticksPerQuarter = this.header.ticksPerBeat;
-                    const microSecondsPerQuarter = lastTempoChange?.event?.microsecondsPerBeat || 500;
+                    const microSecondsPerQuarter = lastTempoChange?.event?.microsecondsPerBeat || 714285;
                     const microSecondsPerTick = microSecondsPerQuarter / ticksPerQuarter;
                     const ticksSinceLastTempoChange = absoluteTick - (lastTempoChange?.absoluteTick || 0);
-                    const deltaMs = event.deltaTime * microSecondsPerTick;
+                    const deltaMs = event.deltaTime * microSecondsPerTick / 1000;
                     const result = {
                         event,
                         absoluteTick,
-                        absoluteTimeMs: (lastTempoChange?.absoluteTimeMs || 0) + (ticksSinceLastTempoChange * microSecondsPerTick),
+                        absoluteTimeMs: (lastTempoChange?.absoluteTimeMs || 0) + (ticksSinceLastTempoChange * microSecondsPerTick / 1000),
                         deltaMs
                     };
                     this.tempochanges.push(result as EventWithTime<SetTempoEvent>);
@@ -58,23 +69,27 @@ export class MidiPlayer extends Component {
             let absoluteTick = 0;
             return track.map(event => {
                 absoluteTick += event.deltaTime;
-                const lastTempoChange = this.tempochanges[search(this.tempochanges, absoluteTick)];
+                const lastTempoChange = this.tempochanges[search(this.tempochanges, absoluteTick)] || this.tempochanges[0];
+                if (!lastTempoChange) {
+                    console.log(search(this.tempochanges, absoluteTick), this.tempochanges);
+                    throw new Error('no last tempo');
+                }
                 const ticksPerQuarter = this.header.ticksPerBeat;
-                const microSecondsPerQuarter = lastTempoChange?.event?.microsecondsPerBeat || 500;
+                const microSecondsPerQuarter = lastTempoChange?.event?.microsecondsPerBeat || 714285;
                 const microSecondsPerTick = microSecondsPerQuarter / ticksPerQuarter;
                 const ticksSinceLastTempoChange = absoluteTick - (lastTempoChange?.absoluteTick || 0);
-                const deltaMs = event.deltaTime * microSecondsPerTick;
+                const deltaMs = event.deltaTime * microSecondsPerTick / 1000;
                 const result = {
                     event,
                     absoluteTick,
-                    absoluteTimeMs: (lastTempoChange?.absoluteTimeMs || 0) + (ticksSinceLastTempoChange * microSecondsPerTick),
+                    absoluteTimeMs: (lastTempoChange?.absoluteTimeMs || 0) + (ticksSinceLastTempoChange * microSecondsPerTick / 1000),
                     deltaMs
                 };
                 return result;
             });
         });
 
-        console.log(this.tracks, this.tempochanges);
+        console.log(midiFile, this.tracks, this.tempochanges);
         this.play();
     }
 
@@ -104,7 +119,11 @@ export class MidiPlayer extends Component {
     }
 
     private emit(ev: AnyEvent) {
-        console.log('midiplayer dispatch', ev);
-        this.midiOut.midi.dispatchEvent(new CustomEvent<AnyEvent>("midimessage", {detail: ev}));
+        const data = new Uint8Array(serialize(ev, false))
+        // this.midiOut.midi.dispatchEvent(new CustomEvent<MIDIMessageEvent>("midimessage", {detail: ev}));
+        this.midiOutAll.midi.dispatchEvent(new MIDIMessageEvent("midimessage", {data}));
+        if (ev.type === 'channel') {
+            this.channelPorts[ev.channel].midi.dispatchEvent(new MIDIMessageEvent("midimessage", {data}));
+        }
     }
 }

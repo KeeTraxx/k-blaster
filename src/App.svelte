@@ -11,15 +11,21 @@
     import { Oscillator } from "./lib/Components/Oscillator/Oscillator";
     import MidiPlayerSvelte from "./lib/Components/MidiPlayer/MidiPlayer.svelte";
     import { MidiPlayer } from "./lib/Components/MidiPlayer/MidiPlayer";
+    import defaultConfig from "./rack-configs/default-config.json";
+    import { connect as connectMidi } from "./lib/Helper/midiport";
+    import { connect as connectAudio } from "./lib/Helper/audioport";
 
     let components: Array<Component>;
-    
-    const svelteComponents = {
-        "Mixer": MixerSvelte,
-        "HardwareIO": HardwareIoSvelte,
-        "Oscillator": OscillatorSvelte,
-        "MidiPlayer": MidiPlayerSvelte
-    }
+
+    const componentMap = {
+        Mixer: {
+            ts: Mixer,
+            svelte: MixerSvelte,
+        },
+        HardwareIO: { ts: HardwareIO, svelte: HardwareIoSvelte },
+        Oscillator: { ts: Oscillator, svelte: OscillatorSvelte },
+        MidiPlayer: { ts: MidiPlayer, svelte: MidiPlayerSvelte },
+    };
 
     function k(event: KeyboardEvent) {
         if (event.key === "Tab") {
@@ -28,14 +34,41 @@
         }
     }
 
-    audioContext.subscribe(ctx => {
-        if(ctx) {
-            components = [
+    audioContext.subscribe((ctx) => {
+        if (ctx) {
+            /* components = [
                 new HardwareIO(ctx, "io"),
                 new Mixer(ctx, "mixer-0"),
                 new Oscillator(ctx, "oscillator-0"),
                 new MidiPlayer("midiplayer")
-            ]
+            ];*/
+
+            components = defaultConfig.components.map(
+                (c) => new componentMap[c.type].ts(ctx, c.id)
+            );
+
+            defaultConfig.connections.forEach((c) => {
+                const fromComponent = components.find(
+                    (d) => d.id === c.fromComponentId
+                );
+                const toComponent = components.find(
+                    (d) => d.id === c.toComponentId
+                );
+                switch (c.type) {
+                    case "midi": {
+                        const fromPort = fromComponent.getMidiPort(c.fromPort);
+                        const toPort = toComponent.getMidiPort(c.toPort);
+                        connectMidi(fromPort, toPort);
+                        break;
+                    }
+                    case "audio": {
+                        const fromPort = fromComponent.getAudioPort(c.fromPort);
+                        const toPort = toComponent.getAudioPort(c.toPort);
+                        connectAudio(fromPort, toPort);
+                        break;
+                    }
+                }
+            });
         }
     });
 </script>
@@ -46,7 +79,10 @@
     <div class="layers">
         <main>
             {#each components as c}
-                <svelte:component this={svelteComponents[c.type]} config={c} />
+                <svelte:component
+                    this={componentMap[c.type].svelte}
+                    config={c}
+                />
             {/each}
         </main>
         <aside>

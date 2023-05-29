@@ -53,7 +53,10 @@
     <svg viewBox="0 0 960 250" preserveAspectRatio="xMidYMid meet">
         <rect width="960" height="250" fill="grey" />
         <text x="0" y="20">MidiPlayer back</text>
-        <MidiPort x="100" y="100" p={config.getMidiPort("out-0")} />
+        <MidiPort x="100" y="100" p={config.getMidiPort("out-all")} />
+        {#each config.channelPorts as port, i }
+        <MidiPort x={200 + 40 * i} y="100" p={port} />
+        {/each}
     </svg>
 {/if}
 

@@ -8,7 +8,7 @@ export class Mixer extends Component {
     public readonly midiPorts: Immutable.Set<MidiPort>;
 
     constructor(audioContext: AudioContext, public readonly id: string) {
-        super();
+        super(id);
 
         this.audioPorts = Immutable.Set<AudioPort>([
             { audioNode: audioContext.createGain(), componentId: id, direction: PortDirection.IN, name: "in-0" },
