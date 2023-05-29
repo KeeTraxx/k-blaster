@@ -9,7 +9,7 @@ export class Oscillator extends Component {
     public readonly type: string = "Oscillator";
     public readonly audioPorts: Immutable.Set<AudioPort>;
     public waveForm = writable<OscillatorType>("sine");
-    private oscillators = new Map<number, OscillatorNode>();
+    private oscillators = new Map<number, OscillatorAndGainNode>();
 
     constructor(private audioContext: AudioContext, public readonly id: string) {
         super(id);
@@ -40,18 +40,24 @@ export class Oscillator extends Component {
             case "channel":
                 switch (message.subtype) {
                     case "noteOff":
-                        this.oscillators.get(message.noteNumber)?.stop();
+                        this.oscillators.get(message.noteNumber)?.oscillatorNode.stop();
+                        this.stop(this.oscillators.get(message.noteNumber));
                         break;
                     case "noteOn":
-                        this.oscillators.get(message.noteNumber)?.stop();
-                        const oscillator = this.audioContext.createOscillator();
-                        this.oscillators.set(message.noteNumber, oscillator);
-                        oscillator.type = get(this.waveForm);
-                        oscillator.connect(this.getAudioPort('out-0').audioNode);
+                        this.stop(this.oscillators.get(message.noteNumber));
+
+                        const oscillatorNode = this.audioContext.createOscillator();
+                        const gainNode = this.audioContext.createGain();
+                        oscillatorNode.connect(gainNode);
+                        this.oscillators.set(message.noteNumber, {oscillatorNode, gainNode});
+                        oscillatorNode.type = get(this.waveForm);
+                        gainNode.connect(this.getAudioPort('out-0').audioNode);
+                        // gainNode.gain.setValueAtTime(0, this.audioContext.currentTime);
+                        // gainNode.gain.linearRampToValueAtTime(1, this.audioContext.currentTime + 0.1);
                         const frequency = this.midiNoteToFreq(message.noteNumber);
-                        oscillator.frequency.setValueAtTime(frequency, this.audioContext.currentTime);
-                        oscillator.start();
-                        oscillator.stop(this.audioContext.currentTime + 10);
+                        oscillatorNode.frequency.setValueAtTime(frequency, this.audioContext.currentTime);
+                        oscillatorNode.start();
+                        oscillatorNode.stop(this.audioContext.currentTime + 10);
                         break;
                     case "unknown":
                     case "noteAftertouch":
@@ -72,9 +78,30 @@ export class Oscillator extends Component {
         }
 
     }
+    stop(og: OscillatorAndGainNode) {
+        if (!og) {
+            return;
+        }
+        const {oscillatorNode, gainNode} = og;
+        if (!oscillatorNode || !gainNode)  {
+            return;
+        }
+
+        gainNode.gain.linearRampToValueAtTime(0, this.audioContext.currentTime + 0.01);
+        oscillatorNode.stop(this.audioContext.currentTime + 0.5);
+        oscillatorNode.addEventListener("ended", () => {
+            gainNode.disconnect();
+            oscillatorNode.disconnect();
+        });
+    }
 
     private midiNoteToFreq(midiNote: number): number {
         const a = 440;
         return a / 32 * (Math.pow(2, (midiNote - 9) / 12));
     }
+}
+
+interface OscillatorAndGainNode {
+    oscillatorNode: OscillatorNode;
+    gainNode: GainNode;
 }
