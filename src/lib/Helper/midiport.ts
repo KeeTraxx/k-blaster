@@ -14,13 +14,13 @@ const mouseDown = (ev: Event, port: MidiPort) => {
     floatingMidiPort.set(port);
 }
 
-const disconnect = (port: MidiPort) => {
+export const disconnect = (port: MidiPort) => {
+    console.log('disconnect', port);
     let connection = [...get(midiConnections).entries()].find(d => d[0] === port || d[1] === port);
 
     if (!connection) {
         return undefined;
     }
-
     
     connection[0].midi.removeEventListener('midimessage', listenerMap.get(connection[0]));
 

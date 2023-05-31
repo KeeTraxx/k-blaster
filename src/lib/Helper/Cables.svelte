@@ -133,6 +133,9 @@
         sim.on("tick", () => el.setAttribute("d", pathDrawer(cableNodes)));
         return {
             update: ([newFrom, newTo]) => {
+                if (!newFrom || !newTo) {
+                    return;
+                }
                 cableNodes[0].fx = newFrom.x;
                 cableNodes[0].fy = newFrom.y;
 
@@ -141,8 +144,7 @@
 
                 sim.alpha(1);
                 sim.restart();
-            },
-            destroy: () => {},
+            }
         };
     }
 

@@ -1,6 +1,7 @@
 import Immutable from "immutable";
 import { Component } from "../Component";
 import { type AudioPort, PortDirection, type MidiPort, type MidiDevice } from "../types";
+import {disconnect} from './../../Helper/midiport';
 
 export class HardwareIO extends Component {
     public readonly type: string = "HardwareIO";
@@ -32,14 +33,28 @@ export class HardwareIO extends Component {
     }
 
     private updateMidiDevices() {
+        [...this.midiDevices.values()].forEach(dev => {
+            disconnect(dev.input)
+            disconnect(dev.output)
+        });
         this.midiDevices.clear();
         [
             ...this.midiAccess.inputs.values(),
             ...this.midiAccess.outputs.values()
         ].forEach(dev => this.midiDevices.set(this.getName(dev), {manufacturer: dev.manufacturer, name: dev.name}));
 
-        [...this.midiAccess.outputs.values()].forEach(dev => this.midiDevices.get(this.getName(dev)).input = dev);
-        [...this.midiAccess.inputs.values()].forEach(dev => this.midiDevices.get(this.getName(dev)).output = dev);
+        [...this.midiAccess.inputs.values()].forEach(dev => this.midiDevices.get(this.getName(dev)).input = {
+            componentId: this.id,
+            direction: PortDirection.OUT,
+            midi: dev,
+            name: `${this.getName(dev)}_OUT`
+        });
+        [...this.midiAccess.outputs.values()].forEach(dev => this.midiDevices.get(this.getName(dev)).output = {
+            componentId: this.id,
+            direction: PortDirection.IN,
+            midi: dev,
+            name: `${this.getName(dev)}_IN`
+        });
     }
 
     private getName(midiDevice: MIDIInput | MIDIOutput) : string {

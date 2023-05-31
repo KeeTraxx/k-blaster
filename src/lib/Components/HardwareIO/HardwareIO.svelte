@@ -37,7 +37,6 @@
                 x={200 + 50 * i}
                 y={100}
                 midiDevice={dev}
-                hardwareIO={config}
             />
         {/each}
     </svg>
