@@ -45,6 +45,6 @@ export interface AudioAccess {
 export interface MidiDevice {
     manufacturer: string;
     name: string;
-    input?: MIDIInput;
-    output?: MIDIOutput;
+    input?: MIDIOutput;
+    output?: MIDIInput;
 }

@@ -10,14 +10,14 @@
 
     const midiOutput: MidiPort = {
         componentId: hardwareIO.id,
-        direction: PortDirection.IN,
+        direction: PortDirection.OUT,
         midi: midiDevice.output,
         name: `${midiDevice.name}-OUT`
     }
 
     const midiInput: MidiPort = {
         componentId: hardwareIO.id,
-        direction: PortDirection.OUT,
+        direction: PortDirection.IN,
         midi: midiDevice.input,
         name: `${midiDevice.name}-IN`
     }
