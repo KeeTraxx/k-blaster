@@ -106,6 +106,9 @@
         [from, to]: [Position, Position]
     ) {
         console.log(el, from, to);
+        if (!from || !to) {
+            return;
+        }
         const CABLE_PARTS = 5;
         let distance = () =>
             Math.sqrt(Math.pow(to.x - from.x, 2) + Math.pow(to.y - from.y, 2));
@@ -144,6 +147,9 @@
 
                 sim.alpha(1);
                 sim.restart();
+            },
+            destroy: () => {
+                console.log('wanna destroy');
             }
         };
     }
