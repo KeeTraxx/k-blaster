@@ -22,7 +22,7 @@ export interface AudioPort {
     componentId: string;
     name: string;
     direction: PortDirection;
-    audioNode: AudioNode;
+    audioNode: GainNode;
 }
 
 export enum PortDirection {

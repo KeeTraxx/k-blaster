@@ -3,30 +3,53 @@
     import Port from "../../Helper/AudioPort.svelte";
     import { PortDirection, View } from "../types";
     import type { Mixer } from "./Mixer";
+    import MixerSlider from "./MixerSlider.svelte";
 
     export let config: Mixer;
+
+    $: inports = [...config.audioPorts].filter(
+        (d) => d.direction === PortDirection.IN
+    );
 </script>
 
-{#if $view == View.FRONT}
-    <svg viewBox="0 0 960 250" preserveAspectRatio="xMidYMid meet">
+<svg viewBox="0 0 960 250" preserveAspectRatio="xMidYMid meet">
+    {#if $view == View.FRONT}
         <rect width="960" height="250" fill="grey" />
         <text x="100" y="100">Mixer</text>
-    </svg>
-{/if}
-
-{#if $view == View.BACK}
-    <svg viewBox="0 0 960 250" preserveAspectRatio="xMidYMid meet">
-        <rect width="960" height="250" fill="grey" />
-        <text x="0" y="20">Mixer back</text>
-        <g transform="translate(50,50)">
-            {#each [...config.audioPorts].filter(d => d.direction === PortDirection.IN) as p, i}
-                <Port x={50 * i} y="20" {p} />
+        <g transform="translate(5)">
+            {#each inports as p, i (p.name)}
+                <g transform="translate({i * 100})">
+                    <rect
+                        width="95"
+                        height="250"
+                        rx="5"
+                        style="fill: none; stroke: white; stroke-width: 3px"
+                    />
+                    <MixerSlider gainNode={p.audioNode} />
+                </g>
             {/each}
         </g>
+    {/if}
 
-        <Port x="100" y="100" p={config.getAudioPort("out-0")}/>
-    </svg>
-{/if}
+    {#if $view == View.BACK}
+        <rect width="960" height="250" fill="grey" />
+        <text x="0" y="20">Mixer back</text>
+        <g transform="translate(5)">
+            {#each inports as p, i (p.name)}
+                <g transform="translate({i * 100})">
+                    <rect
+                        width="95"
+                        height="250"
+                        rx="5"
+                        style="fill: none; stroke: white; stroke-width: 3px"
+                    />
+                    <Port x="40" y="200" {p} />
+                </g>
+            {/each}
+        </g>
+        <Port x="880" y="200" p={config.getAudioPort("out-0")} />
+    {/if}
+</svg>
 
 <style>
     svg {
