@@ -109,6 +109,10 @@
         inset: 0;
     }
 
+    :global(main > *, aside > *) {
+        flex: 0 0 250px;
+    } 
+
     aside {
         pointer-events: none;
         width: 100%;

@@ -57,17 +57,24 @@
     }
 
     onMount(() => {
+        onResized();
+    });
+
+    function onResized() {
+        console.log('resize triggered');
         const rect = captureEl.getBoundingClientRect();
         scale.domain([rect.bottom, rect.top]);
-    });
+    }
 </script>
+
+<svelte:window on:resize={() => onResized()} />
 
 <rect
     bind:this={captureEl}
     {width}
     {height}
     class="capture"
-    on:wheel={(ev) => (ev.deltaY < 0 ? increment() : decrement())}
+    on:wheel={(ev) => {ev.preventDefault(); ev.deltaY < 0 ? increment() : decrement()}}
     on:mousedown={() => startDrag()}
     on:touchstart={() => startDrag()}
 />
@@ -75,6 +82,6 @@
 
 <style>
     .capture {
-        fill: rgba(0, 0, 0, 0);
+        fill: rgba(255, 128, 128, 0.3);
     }
 </style>

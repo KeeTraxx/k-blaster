@@ -3,6 +3,7 @@
     import Port from "../../Helper/AudioPort.svelte";
     import { PortDirection, View } from "../types";
     import type { Mixer } from "./Mixer";
+    import MixerLevelDisplay from "./MixerLevelDisplay.svelte";
     import MixerSlider from "./MixerSlider.svelte";
 
     export let config: Mixer;
@@ -12,13 +13,14 @@
     );
 </script>
 
-<svg viewBox="0 0 960 250" preserveAspectRatio="xMidYMid meet">
-    {#if $view == View.FRONT}
+{#if $view == View.FRONT}
+    <svg viewBox="0 0 960 250" preserveAspectRatio="xMidYMid meet">
         <rect width="960" height="250" fill="grey" />
         <text x="100" y="100">Mixer</text>
         <g transform="translate(5)">
             {#each inports as p, i (p.name)}
                 <g transform="translate({i * 100})">
+                    <MixerLevelDisplay />
                     <rect
                         width="95"
                         height="250"
@@ -29,9 +31,11 @@
                 </g>
             {/each}
         </g>
-    {/if}
+    </svg>
+{/if}
 
-    {#if $view == View.BACK}
+{#if $view == View.BACK}
+    <svg viewBox="0 0 960 250" preserveAspectRatio="xMidYMid meet">
         <rect width="960" height="250" fill="grey" />
         <text x="0" y="20">Mixer back</text>
         <g transform="translate(5)">
@@ -48,8 +52,8 @@
             {/each}
         </g>
         <Port x="880" y="200" p={config.getAudioPort("out-0")} />
-    {/if}
-</svg>
+    </svg>
+{/if}
 
 <style>
     svg {
