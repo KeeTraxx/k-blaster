@@ -20,7 +20,7 @@
         <g transform="translate(5)">
             {#each inports as p, i (p.name)}
                 <g transform="translate({i * 100})">
-                    <MixerLevelDisplay />
+                    <MixerLevelDisplay audioContext={config.audioContext} audioNode={p.audioNode} />
                     <rect
                         width="95"
                         height="250"
