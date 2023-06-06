@@ -109,7 +109,7 @@
         inset: 0;
     }
 
-    :global(main > *, aside > *) {
+    :global(main > *) {
         flex: 0 0 250px;
     } 
 
