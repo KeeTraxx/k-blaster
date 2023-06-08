@@ -7,22 +7,14 @@
     export let step = 0.1;
     export let current = 1;
 
-    const scale = scaleLinear()
-        .domain([0, 250])
-        .range([min, max])
-        .clamp(true);
-
-    let invertScale = scaleLinear();
-
+    let scale = scaleLinear().domain([0, 250]).range([min, max]).clamp(true);
 
     let captureEl: SVGRectElement;
     let slider: SVGGElement;
-    let sliderRect: DOMRect;
+    let sliderRect: DOMRect = new DOMRect();
     let groove: SVGGElement;
-    let grooveRect: DOMRect;
-    let all: SVGGElement;
-    let allRect: DOMRect = {height: 250, width: 100, bottom: 250, left: 0, right: 100, top: 0, x: 0, y:0};
-
+    let grooveRect: DOMRect = new DOMRect();
+    let allRect: DOMRect = new DOMRect();
     const dispatch = createEventDispatcher<{ valuechanged: number }>();
 
     function increment() {
@@ -46,8 +38,8 @@
     };
 
     function moveTo(ev: MouseEvent | Touch) {
-        console.log(ev.clientY, scale.domain());
-        current = scale(ev.clientY);
+        console.log(ev.clientY - grooveRect.top, scale.domain());
+        current = scale(ev.clientY - grooveRect.top);
     }
 
     function startDrag() {
@@ -71,39 +63,40 @@
     onMount(() => {
         sliderRect = slider.getBoundingClientRect();
         grooveRect = groove.getBoundingClientRect();
-        allRect = all.getBoundingClientRect();
+        allRect = {
+            x: 0,
+            y: 0,
+            top: grooveRect.top - sliderRect.height / 2,
+            right: grooveRect.left / 2 + grooveRect.right / 2 + sliderRect.width / 2,
+            bottom: grooveRect.bottom + sliderRect.height /2,
+            left: grooveRect.left / 2 + grooveRect.right / 2 - sliderRect.width / 2,
+            height: grooveRect.height + sliderRect.height,
+            width: sliderRect.width,
+            toJSON: () => ""
+        };
         console.log(allRect);
-        scale.domain([allRect.bottom + sliderRect.height / 2, allRect.top + sliderRect.height / 2]);
+        scale.domain([grooveRect.height, 0]);
 
-        
-        padding = sliderRect.height / 2;
-        invertScale = scaleLinear()
-            .domain([min, max])
-            .range([allRect.height - padding, padding])
-            .clamp(true);
+        scale = scale.copy();
     });
-
-    let padding = 5;
 </script>
 
-
 <text x="20" y="20">{current}</text>
-<g bind:this={all}>
-    <g bind:this={groove}>
-        <slot name="groove">
-            <rect width="10" height=100 />
-        </slot>
-    </g>
-    <g bind:this={slider} transform=translate(0,{invertScale(current)}) >
-        <slot name="slider">
-            <circle r="5" />
-        </slot>
-    </g>
+<g bind:this={groove}>
+    <slot name="groove">
+        <rect x=-5 width="10" height="100" />
+    </slot>
+</g>
+<g bind:this={slider} transform="translate(0,{scale.invert(current)})">
+    <slot name="slider">
+        <circle r="5" />
+    </slot>
 </g>
 
 <rect
     bind:this={captureEl}
     x={-allRect.width / 2}
+    y={-sliderRect.height / 2}
     width={allRect.width}
     height={allRect.height}
     class="capture"

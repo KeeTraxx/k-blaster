@@ -77,5 +77,4 @@
 </script>
 
 <foreignObject width="100" height="250">
-    <canvas bind:this={canvas} width="100" height="250" /></foreignObject
->
+    <canvas bind:this={canvas} width="100" height="250" /></foreignObject>

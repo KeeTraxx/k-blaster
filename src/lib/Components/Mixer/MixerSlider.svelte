@@ -11,7 +11,7 @@
         on:valuechanged={(ev) => gainNode.gain.setValueAtTime(ev.detail, 0)}
         current={gainNode.gain.value}
     >
-    <circle r=20 slot="slider" />
-</Slider>
-
+        <circle r="20" slot="slider" />
+        <rect slot="groove" x=-5 height=200 width=10></rect>
+    </Slider>
 </g>

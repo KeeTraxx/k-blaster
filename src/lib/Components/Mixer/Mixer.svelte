@@ -27,7 +27,7 @@
                         rx="5"
                         style="fill: none; stroke: white; stroke-width: 3px"
                     />
-                    <MixerSlider x={20} gainNode={p.audioNode} />
+                    <MixerSlider x={50} y={30} gainNode={p.audioNode} />
                 </g>
             {/each}
         </g>
