@@ -110,6 +110,6 @@
 
 <style>
     .capture {
-        fill: rgba(255, 128, 128, 0.3);
+        fill: rgba(255, 128, 128, 0);
     }
 </style>

@@ -182,10 +182,10 @@
                 class="audio"
                 use:mousemove
                 use:cablePhysics={[
-                    { x: $floating.x, y: $floating.y },
+                    { x: $floating.x + window.scrollX, y: $floating.y + window.scrollY },
                     {
-                        x: mouseEvent?.clientX || $floating.x,
-                        y: mouseEvent?.clientY || $floating.y,
+                        x: mouseEvent?.pageX || $floating.x,
+                        y: mouseEvent?.pageY || $floating.y,
                     },
                 ]}
             />

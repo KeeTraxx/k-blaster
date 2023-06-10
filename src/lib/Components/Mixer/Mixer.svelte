@@ -17,20 +17,21 @@
     <svg viewBox="0 0 960 250" preserveAspectRatio="xMidYMid meet">
         <rect width="960" height="250" fill="grey" />
         <text x="100" y="100">Mixer</text>
-        <g transform="translate(5)">
-            {#each inports as p, i (p.name)}
-                <g transform="translate({i * 100})">
-                    <MixerLevelDisplay audioContext={config.audioContext} audioNode={p.audioNode} />
-                    <rect
-                        width="95"
-                        height="250"
-                        rx="5"
-                        style="fill: none; stroke: white; stroke-width: 3px"
-                    />
-                    <MixerSlider x={50} y={30} gainNode={p.audioNode} />
-                </g>
-            {/each}
-        </g>
+        {#each inports as p, i (p.name)}
+            <g transform="translate({i * 100})">
+                <MixerLevelDisplay
+                    audioContext={config.audioContext}
+                    audioNode={p.audioNode}
+                />
+                <rect
+                    width="95"
+                    height="250"
+                    rx="5"
+                    style="fill: none; stroke: white; stroke-width: 3px"
+                />
+                <MixerSlider x={50} y={30} gainNode={p.audioNode} />
+            </g>
+        {/each}
     </svg>
 {/if}
 
