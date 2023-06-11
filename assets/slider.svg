@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="210mm"
+   height="297mm"
+   viewBox="0 0 210 297"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20)"
+   sodipodi:docname="slider.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:document-units="px"
+     showgrid="false"
+     inkscape:zoom="24.886869"
+     inkscape:cx="5.525002"
+     inkscape:cy="16.052642"
+     inkscape:window-width="2560"
+     inkscape:window-height="1351"
+     inkscape:window-x="-9"
+     inkscape:window-y="-9"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2">
+    <linearGradient
+       inkscape:collect="always"
+       id="BG">
+      <stop
+         style="stop-color:#ffffff;stop-opacity:1;"
+         offset="0"
+         id="stop1066" />
+      <stop
+         style="stop-color:#ffffff;stop-opacity:1;"
+         offset="0.01298705"
+         id="stop1696" />
+      <stop
+         style="stop-color:#dcdcdc;stop-opacity:1"
+         offset="0.19480522"
+         id="stop2595" />
+      <stop
+         style="stop-color:#3a3a3a;stop-opacity:1"
+         offset="0.22727275"
+         id="stop2917" />
+      <stop
+         style="stop-color:#ffffff;stop-opacity:1"
+         offset="0.53246754"
+         id="stop3239" />
+      <stop
+         style="stop-color:#eeeeee;stop-opacity:1"
+         offset="0.83116883"
+         id="stop4073" />
+      <stop
+         style="stop-color:#6b6b6b;stop-opacity:1"
+         offset="0.86363637"
+         id="stop4843" />
+      <stop
+         style="stop-color:#141414;stop-opacity:1"
+         offset="1"
+         id="stop1068" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#BG"
+       id="linearGradient1064"
+       x1="50.265465"
+       y1="50.520618"
+       x2="50.265465"
+       y2="57.069588"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.99377249,0,0,0.96421036,-48.21702,-48.583011)" />
+    <filter
+       style="color-interpolation-filters:sRGB;"
+       inkscape:label="Drop Shadow"
+       id="filter8333"
+       x="-0.12561534"
+       y="-0.060192016"
+       width="1.2854641"
+       height="1.1367879">
+      <feFlood
+         flood-opacity="0.498039"
+         flood-color="rgb(0,0,0)"
+         result="flood"
+         id="feFlood8323" />
+      <feComposite
+         in="flood"
+         in2="SourceGraphic"
+         operator="in"
+         result="composite1"
+         id="feComposite8325" />
+      <feGaussianBlur
+         in="composite1"
+         stdDeviation="0.1"
+         result="blur"
+         id="feGaussianBlur8327" />
+      <feOffset
+         dx="0.1"
+         dy="0.1"
+         result="offset"
+         id="feOffset8329" />
+      <feComposite
+         in="SourceGraphic"
+         in2="offset"
+         operator="over"
+         result="composite2"
+         id="feComposite8331" />
+    </filter>
+  </defs>
+  <g
+     inkscape:label="Slider"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <rect
+       style="fill:url(#linearGradient1064);fill-opacity:1;stroke:#535353;stroke-width:0.258995;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke markers fill;stop-color:#000000"
+       id="rect950"
+       width="2.9160049"
+       height="6.355588"
+       x="0.1294976"
+       y="0.1294976"
+       inkscape:label="BG" />
+    <path
+       style="fill:#ff0000;stroke:#ff0000;stroke-width:0.259111;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 0.1294502,3.3045555 H 3.0455498"
+       id="path6547"
+       inkscape:label="Indicator" />
+  </g>
+</svg>
