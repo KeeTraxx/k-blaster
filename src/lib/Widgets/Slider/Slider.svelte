@@ -1,6 +1,7 @@
 <script lang="ts">
     import { createEventDispatcher, onMount } from "svelte";
     import { scaleLinear } from "d3";
+    import SliderGfx from "./SliderGfx.svelte";
 
     export let min = 0;
     export let max = 1;
@@ -67,12 +68,18 @@
             x: 0,
             y: 0,
             top: grooveRect.top - sliderRect.height / 2,
-            right: grooveRect.left / 2 + grooveRect.right / 2 + sliderRect.width / 2,
-            bottom: grooveRect.bottom + sliderRect.height /2,
-            left: grooveRect.left / 2 + grooveRect.right / 2 - sliderRect.width / 2,
+            right:
+                grooveRect.left / 2 +
+                grooveRect.right / 2 +
+                sliderRect.width / 2,
+            bottom: grooveRect.bottom + sliderRect.height / 2,
+            left:
+                grooveRect.left / 2 +
+                grooveRect.right / 2 -
+                sliderRect.width / 2,
             height: grooveRect.height + sliderRect.height,
             width: sliderRect.width,
-            toJSON: () => ""
+            toJSON: () => "",
         };
         console.log(allRect);
         scale.domain([grooveRect.height, 0]);
@@ -84,12 +91,14 @@
 <text x="20" y="20">{current}</text>
 <g bind:this={groove}>
     <slot name="groove">
-        <rect x=-5 width="10" height="100" />
+        <rect x="-5" width="10" height="100" />
     </slot>
 </g>
 <g bind:this={slider} transform="translate(0,{scale.invert(current)})">
     <slot name="slider">
-        <circle r="5" />
+        <g transform="scale(1.5)translate(-6,0)">
+            <SliderGfx />
+        </g>
     </slot>
 </g>
 
